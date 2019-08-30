@@ -1,5 +1,6 @@
 import tensorflow as tf
 import os
+import numpy as np
 
 def input_function_npz(opts, mode):
 	if mode == 'train':
@@ -17,7 +18,7 @@ def input_function_npz(opts, mode):
 		input_fn = tf.estimator.inputs.numpy_input_fn(
 						x=source, y=None, batch_size=1,
 						num_epochs=1, shuffle=True)
-	return input_fn
+	return input_fn()
 
 def get_filenames(opts, mode):
 	if mode == 'train':

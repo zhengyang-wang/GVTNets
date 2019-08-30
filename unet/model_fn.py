@@ -5,7 +5,7 @@ import sys
 import numpy as np
 
 from unet.network import UNet, _3d_to_2d, get_loss
-from unet.data import input_function
+from unet.data import input_function, input_function_npz
 from unet.data import prepare_test
 
 
@@ -43,16 +43,14 @@ class Model(object):
 			self.conf_unet['dimension'] = '2D'
 		network = UNet(self.conf_unet)
 		outputs = network(features, mode == tf.estimator.ModeKeys.TRAIN)
-		if self.opts.offset:
-			outputs = tf.add(features, outputs)
 
-		predictions = {'pixel_values': outputs}
+		predictions = {'pixel_values': tf.add(features, outputs) if self.opts.offset else outputs}
 
 		if mode == tf.estimator.ModeKeys.PREDICT:
 			return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions)
 
 		# Calculate the MSE loss.
-		loss = get_loss(labels, outputs, self.opts, self.conf_unet)
+		loss = get_loss(labels, features, outputs, self.opts, self.conf_unet)
 
 		# Create a tensor named MSE for logging purposes.
 		tf.identity(loss, name=self.opts.loss_type)
@@ -96,10 +94,10 @@ class Model(object):
 						model_dir=self.opts.model_dir,
 						config=run_config)
 
-		tensors_to_log = {'MSE': 'MSE'}
+		tensors_to_log = {self.opts.loss_type: self.opts.loss_type}
 		logging_hook = tf.train.LoggingTensorHook(tensors=tensors_to_log, every_n_iter=100)
 
-		input_function = input_function if not self.opts.npz else input_function_from_npz
+		input_function = input_function if not self.opts.npz else input_function_npz
 		def input_fn_train():
 			return input_function(opts=self.opts, mode='train')
 

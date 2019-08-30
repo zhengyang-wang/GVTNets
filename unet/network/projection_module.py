@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tensorflow.layers import max_pooling3d
-from basic_ops import *
-from attention_module import *
+from .basic_ops import *
+from .attention_module import *
 
 """This script defines projection module only used for the 3D to 2D projection tasks.
 By default, the bottom block and the upsample blocks are attention-based.
