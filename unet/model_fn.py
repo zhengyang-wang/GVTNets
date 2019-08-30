@@ -4,7 +4,7 @@ import tifffile
 import sys
 import numpy as np
 
-from unet.network import UNet
+from unet.network import UNet, _3d_to_2d, get_loss
 from unet.data import input_function
 from unet.data import prepare_test
 
@@ -37,8 +37,14 @@ class Model(object):
 		Returns:
 			tf.estimator.EstimatorSpec
 		"""
+		if self.opts.proj_model:
+			projection = _3d_to_2d(self.conf_unet)
+			features = projection(features, mode == tf.estimator.ModeKeys.TRAIN)
+			self.conf_unet['dimension'] = '2D'
 		network = UNet(self.conf_unet)
 		outputs = network(features, mode == tf.estimator.ModeKeys.TRAIN)
+		if self.opts.offset:
+			outputs = tf.add(features, outputs)
 
 		predictions = {'pixel_values': outputs}
 
@@ -46,11 +52,11 @@ class Model(object):
 			return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions)
 
 		# Calculate the MSE loss.
-		loss = tf.losses.mean_squared_error(labels, outputs)
+		loss = get_loss(labels, outputs, self.opts, self.conf_unet)
 
 		# Create a tensor named MSE for logging purposes.
-		tf.identity(loss, name='MSE')
-		tf.summary.scalar('MSE', loss)
+		tf.identity(loss, name=self.opts.loss_type)
+		tf.summary.scalar(self.opts.loss_type, loss)
 
 		if mode == tf.estimator.ModeKeys.TRAIN:
 			global_step = tf.train.get_or_create_global_step()
@@ -93,6 +99,7 @@ class Model(object):
 		tensors_to_log = {'MSE': 'MSE'}
 		logging_hook = tf.train.LoggingTensorHook(tensors=tensors_to_log, every_n_iter=100)
 
+		input_function = input_function if not self.opts.npz else input_function_from_npz
 		def input_fn_train():
 			return input_function(opts=self.opts, mode='train')
 
