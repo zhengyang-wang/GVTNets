@@ -128,6 +128,30 @@ def up_gto_v2(inputs, output_filters, training, dimension, name):
 		return tf.add(query, inputs)
 
 
+def up4_gto_v2(inputs, output_filters, training, dimension, name):
+	"""4 times upsampling, used for projection models"""
+	if conf_attn_up['key_ratio'] != 1:
+		raise ValueError("Must set key_ratio == 1!")
+
+	with tf.variable_scope(name):
+		inputs = batch_norm(inputs, training, 'batch_norm')
+		inputs = relu(inputs, 'relu')
+		inputs, query = self_attention(
+							inputs,
+							output_filters // conf_attn_up['key_ratio'],
+							output_filters // conf_attn_up['value_ratio'],
+							output_filters,
+							conf_attn_up['num_heads'],
+							training,
+							dimension,
+							'UP4',
+							'attention',
+							conf_attn_up['dropout_rate'],
+							conf_attn_up['use_softmax'],
+							conf_attn_up['use_bias'])
+		return tf.add(query, inputs)
+
+
 def down_gto_v2(inputs, output_filters, training, dimension, name):
 	"""Down GTO block version 2. (Yaochen)"""
 	if conf_attn_down['key_ratio'] != 1:
