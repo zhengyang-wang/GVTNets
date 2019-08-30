@@ -9,9 +9,11 @@ from network_configure import conf_basic_ops, conf_attn_same, conf_attn_up, conf
 def main(_):
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--tf_dataset_dir', type=str, help='directory of tfrecord files')
+	parser.add_argument('--npz_dataset_dir', type=str, help='directory of npz files, only used with --npz')
 	parser.add_argument('--num_train_pairs', type=int, default=30, help='number of pairs for training')
 	parser.add_argument('--batch_size', type=int, default=24, help='size of each batch')
 	parser.add_argument('--buffer_size', type=int, default=30, help='number of images to cache in memory')
+	parser.add_argument('--loss_type', type=str, default='MSE', help='mse loss or mae loss')
 	parser.add_argument('--learning_rate', type=float, default=0.001, help='learning rate')
 	parser.add_argument('--num_iters', type=int, default=500, help='number of training iterations')
 	parser.add_argument('--save_checkpoints_iter', type=int, default=500, help='iterations at which to save checkpoints of model')
@@ -19,6 +21,10 @@ def main(_):
 	parser.add_argument('--patch_size', nargs='+', type=int, default=[32, 64, 64], help='size of patches to sample from Dataset elements')
 	parser.add_argument('--gpu_id', type=int, help='which gpu to use')
 	parser.add_argument('--num_parallel_calls', type=int, default=5, help='number of records that are processed in parallel')
+	parser.add_argument('--proj_model', action="store_true", help='whether a prejection model from 3D to 2D')
+	parser.add_argument('--offset', action="store_true", help='whether add inputs to network output')
+	parser.add_argument('--probalistic', action="store_true", help='train with probalistic loss')
+	parser.add_argument('--npz', action="store_true", help='load dataset from npz files')
 	opts = parser.parse_args()
 
 	if not os.path.exists(opts.model_dir):
