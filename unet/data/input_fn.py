@@ -1,6 +1,24 @@
 import tensorflow as tf
 import os
 
+def input_function_npz(opts, mode):
+	if mode == 'train':
+		data = np.load(opts.npz_dataset_dir+'/data_label.npz')
+		source = np.moveaxis(data['X'], 1, -1)
+		target = np.moveaxis(data['Y'], 1, -1)
+
+		repeats = opts.num_iters * opts.batch_size // opts.num_train_pairs
+		input_fn = tf.estimator.inputs.numpy_input_fn(
+						x=source, y=target, batch_size=self.batch_size,
+						num_epochs=repeats, shuffle=True)
+	elif mode == 'pred':
+		data = np.load(opts.npz_dataset_dir+'/test_data.npz')
+		source = np.moveaxis(data['X'], 1, -1)
+		input_fn = tf.estimator.inputs.numpy_input_fn(
+						x=source, y=None, batch_size=1,
+						num_epochs=1, shuffle=True)
+	return input_fn
+
 def get_filenames(opts, mode):
 	if mode == 'train':
 		return [os.path.join(opts.tf_dataset_dir, 'train.tfrecords')]
