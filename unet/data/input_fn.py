@@ -9,7 +9,7 @@ def input_function_npz(opts, mode):
 
 		repeats = opts.num_iters * opts.batch_size // opts.num_train_pairs
 		input_fn = tf.estimator.inputs.numpy_input_fn(
-						x=source, y=target, batch_size=self.batch_size,
+						x=source, y=target, batch_size=opts.batch_size,
 						num_epochs=repeats, shuffle=True)
 	elif mode == 'pred':
 		data = np.load(opts.npz_dataset_dir+'/test_data.npz')
