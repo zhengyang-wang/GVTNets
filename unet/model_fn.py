@@ -49,7 +49,8 @@ class Model(object):
 			return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions)
 
 		# Calculate the loss.
-		loss = get_loss(labels, features, outputs, opts.loss_type, opts.probalistic, conf_unet['dimension'])
+		loss = get_loss(labels, features, outputs, self.opts.loss_type,
+					self.opts.probalistic, self.conf_unet['dimension'])
 
 		# Create a tensor named MSE for logging purposes.
 		tf.identity(loss, name=self.opts.loss_type)

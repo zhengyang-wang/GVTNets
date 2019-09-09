@@ -8,6 +8,7 @@ from network_configure import conf_basic_ops, conf_attn_same, conf_attn_up, conf
 
 def main(_):
 	parser = argparse.ArgumentParser()
+	parser.add_argument('--gpu_id', type=int, help='which gpu to use')
 	# training data
 	parser.add_argument('--npz_dataset_dir', type=str, help='directory of npz files corresponding to training data')
 	parser.add_argument('--cropped', action="store_true", help='whether training data are already cropped')
@@ -18,15 +19,17 @@ def main(_):
 	parser.add_argument('--batch_size', type=int, default=24, help='size of each batch during training')
 	parser.add_argument('--loss_type', type=str, default='MSE', help='meam squared error (MSE) or mean absolute error (MAE) loss')
 	parser.add_argument('--learning_rate', type=float, default=0.001, help='learning rate')
-	parser.add_argument('--num_iters', type=int, default=500, help='number of training iterations')
-	parser.add_argument('--save_checkpoints_iter', type=int, default=500, help='iterations at which to save checkpoints of model')
-	parser.add_argument('--model_dir', default='saved_models', help='base directory for saved models')
-	parser.add_argument('--patch_size', nargs='+', type=int, default=[32, 64, 64], help='size of patches to sample from Dataset elements')
-	parser.add_argument('--gpu_id', type=int, help='which gpu to use')
-	parser.add_argument('--num_parallel_calls', type=int, default=5, help='number of records that are processed in parallel')
-	parser.add_argument('--proj_model', action="store_true", help='whether model project 3D images to 2D, e.g. Flywings projection')
-	parser.add_argument('--offset', action="store_true", help='whether add inputs to the network output, used in CARE')
-	parser.add_argument('--probalistic', action="store_true", help='train with probalistic loss')
+	parser.add_argument('--num_iters', type=int, default=500, help='number of training iterations (each iteration processes one batch)')
+	parser.add_argument('--train_patch_size', nargs='+', type=int, default=[32, 64, 64], help='size of training patches after cropping: [(D,) H, W]')
+	# training/testing logs
+	parser.add_argument('--save_checkpoints_iter', type=int, default=500, help='iterations at which to save training checkpoints of model')
+	parser.add_argument('--model_dir', default='saved_models', help='directory to save logs of training and results of testing/prediction')
+	# extra options
+	parser.add_argument('--proj_model', action="store_true", help='whether to use ProjectionNet to project 3D images to 2D, \
+																	used in 3D-to-2D transform task, e.g. Flywings projection')
+	parser.add_argument('--offset', action="store_true", help='whether to add inputs to the outputs')
+	parser.add_argument('--probalistic', action="store_true", help='whether to train with probalistic loss')
+	
 	opts = parser.parse_args()
 
 	if not os.path.exists(opts.model_dir):

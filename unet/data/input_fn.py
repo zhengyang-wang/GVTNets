@@ -60,21 +60,21 @@ def input_fn_generator(source, target, opts, shuffle=True, seed=None):
 		while(True):
 			idx = np.random.randint(source.shape[0])
 			src,trg = source[idx], target[idx]
-			valid_shape = src.shape[:-1]-np.array(opts.patch_size)
+			valid_shape = src.shape[:-1]-np.array(opts.train_patch_size)
 			# TODO: compatability to 2D images
 			z = np.random.randint(0,valid_shape[0])
 			x = np.random.randint(0,valid_shape[1])
 			y = np.random.randint(0,valid_shape[2])
-			s = (slice(z,z+patch_size[0]), 
-				 slice(x,x+patch_size[1]), 
-				 slice(y,y+patch_size[2]))
+			s = (slice(z,z+train_patch_size[0]), 
+				 slice(x,x+train_patch_size[1]), 
+				 slice(y,y+train_patch_size[2]))
 			src_ptch = src[s]
 			trg_ptch = trg[s]
 			yield src_ptch, trg_ptch
 
 	output_types = (tf.float32, tf.float32)
-	output_shapes = (tf.TensorShape(patch_size+(1,)), 
-					 tf.TensorShape(patch_size+(1,)))
+	output_shapes = (tf.TensorShape(train_patch_size+(1,)), 
+					 tf.TensorShape(train_patch_size+(1,)))
 	dataset = tf.data.Dataset.from_generator(generator, 
 		output_types=output_types, output_shapes=output_shapes)
 	dataset = dataset.batch(batch_size).prefetch(4)

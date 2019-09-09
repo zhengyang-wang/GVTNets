@@ -28,6 +28,6 @@ def get_loss(labels, inputs, outputs, loss_type, probalistic, dimension):
 			loss = tf.losses.absolute_difference(labels, outputs)
 
 	else:
-		raise ValueError("The opts.loss_type (%s) must be MSE or MAE." % (opts.loss_type))
+		raise ValueError("The loss_type (%s) must be MSE or MAE." % (loss_type))
 
 	return loss
