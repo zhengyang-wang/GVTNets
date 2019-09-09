@@ -1,4 +1,6 @@
 import tensorflow as tf
+from .basic_ops import *
+
 
 def get_loss(labels, inputs, outputs, loss_type, probalistic, dimension):
 
