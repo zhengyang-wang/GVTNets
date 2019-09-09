@@ -90,7 +90,7 @@ class Model(object):
 						keep_checkpoint_max=0,
 						session_config=session_config)
 
-		classifier = tf.estimator.Estimator(
+		transformer = tf.estimator.Estimator(
 						model_fn=self._model_fn,
 						model_dir=self.opts.model_dir,
 						config=run_config)
@@ -101,13 +101,13 @@ class Model(object):
 		input_fn_train = input_function(opts=self.opts, mode='train')
 
 		print('Start training...')
-		classifier.train(input_fn=input_fn_train, hooks=[logging_hook])
+		transformer.train(input_fn=input_fn_train, steps=self.opts.num_iters, hooks=[logging_hook])
 
 	def predict(self):
 		# Using the Winograd non-fused algorithms provides a small performance boost.
 		os.environ['TF_ENABLE_WINOGRAD_NONFUSED'] = '1'
 
-		classifier = tf.estimator.Estimator(
+		transformer = tf.estimator.Estimator(
 						model_fn=self._model_fn,
 						model_dir=self.opts.model_dir)
 
@@ -115,7 +115,7 @@ class Model(object):
 			return input_function(opts=self.opts, mode='pred')
 
 		checkpoint_file = os.path.join(self.opts.model_dir, 'model.ckpt-'+str(self.opts.checkpoint_num))
-		preds = classifier.predict(input_fn=input_fn_predict, checkpoint_path=checkpoint_file)
+		preds = transformer.predict(input_fn=input_fn_predict, checkpoint_path=checkpoint_file)
 
 		model_name = self.opts.model_dir.split('/')[-1]
 		pred_result_dir = os.path.join(self.opts.result_dir, model_name)
