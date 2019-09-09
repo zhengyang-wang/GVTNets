@@ -4,7 +4,7 @@ import tifffile
 import sys
 import numpy as np
 
-from unet.network import UNet, _3d_to_2d, get_loss
+from unet.network import UNet, ProjectionNet, get_loss
 from unet.data import input_function, input_function_npz
 from unet.data import prepare_test
 
@@ -38,7 +38,7 @@ class Model(object):
 			tf.estimator.EstimatorSpec
 		"""
 		if self.opts.proj_model:
-			projection = _3d_to_2d(self.conf_unet)
+			projection = ProjectionNet(self.conf_unet)
 			features = projection(features, mode == tf.estimator.ModeKeys.TRAIN)
 			self.conf_unet['dimension'] = '2D'
 		network = UNet(self.conf_unet)
