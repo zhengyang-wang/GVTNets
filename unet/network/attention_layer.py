@@ -149,6 +149,7 @@ def compute_qkv_3d(inputs, total_key_filters, total_value_filters, use_bias, lay
 		q = convolution_3D(inputs, total_key_filters, 3, 2, use_bias, 'q_transform')
 	elif layer_type == 'UP':
 		q = transposed_convolution_3D(inputs, total_key_filters, 3, 2, use_bias, 'q_transform')
+	# ProjectionNet uses 4 times up-sampling and down-sampling. For projection models only, e.g. Flywing Projections.
 	elif layer_type == 'UP4':
 		q = tf.reshape(inputs, tf.concat([tf.shape(inputs)[0:1]*tf.shape(inputs)[1:2], tf.shape(inputs)[2:]],0))
 		q = tf.image.resize_nearest_neighbor(q, tf.concat([tf.shape(inputs)[2:3]*4, tf.shape(inputs)[3:4]*4],0))
