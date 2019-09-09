@@ -68,6 +68,7 @@ def input_function(opts, mode):
 		input_fn = lambda: input_fn_generator(sources, targets, opts)
 
 	else:
+		# Using tfrecords can handle both cases.
 		save_tfrecord(opts, sources, targets)
 		input_fn = lambda: input_fn_tfrecord(opts)
 
@@ -93,7 +94,7 @@ def input_fn_generator(sources, targets, opts, shuffle=True):
 			source, target = sources[idx], targets[idx]
 
 			# random crop
-			# TODO: compatability to 2D images
+			# TODO: compatability to 2D inputs
 			valid_shape = source.shape[:-1] - np.array(opts.train_patch_size)
 			z = np.random.randint(0, valid_shape[0])
 			x = np.random.randint(0, valid_shape[1])
@@ -116,17 +117,85 @@ def input_fn_generator(sources, targets, opts, shuffle=True):
 	return dataset
 
 
-def input_fn_tfrecord(opts, fnames):
+def input_fn_tfrecord(opts):
 
-	pass
+	# TODO: compatability to 2D inputs
+	def decode_train(serialized_example):
+		"""Parses training data from the given `serialized_example`."""
+		features = tf.parse_single_example(
+						serialized_example,
+						features={
+							'source':tf.FixedLenFeature([],tf.string),
+							'target':tf.FixedLenFeature([], tf.string),
+							'shape':tf.FixedLenFeature(4, tf.int64),
+						})
+
+		# Convert from a scalar string tensor
+		source = tf.decode_raw(features['source'], tf.float32)
+		source = tf.reshape(source, features['shape'])
+		target = tf.decode_raw(features['target'], tf.float32)
+		target = tf.reshape(target, features['shape'])
+		return source, target
+
+	def crop_image_train(source, target, patch_size):
+		"""Crop training data."""
+		pair = tf.concat([source, target], axis=-1)
+		pair = tf.random_crop(pair, patch_size+[2])
+		[source, target] = tf.split(pair, 2, axis=-1)
+		return source, target
+
+	dataset = tf.data.TFRecordDataset([os.path.join(opts.tf_dataset_dir, 'train.tfrecords')])
+	# We prefetch a batch at a time, This can help smooth out the time taken to
+	# load input files as we go through shuffling and processing.
+	dataset = dataset.prefetch(buffer_size=opts.batch_size)
+	# Shuffle the records. Note that we shuffle before repeating to ensure
+	# that the shuffling respects epoch boundaries.
+	dataset = dataset.shuffle(buffer_size=30)
+	# If we are training over multiple epochs before evaluating, repeat the
+	# dataset for the appropriate number of epochs.
+	dataset = dataset.repeat(opts.num_iters * opts.batch_size // opts.num_train_pairs)
+	dataset = dataset.map(decode_train, num_parallel_calls=5)
+	dataset = dataset.map(lambda x, y: crop_image_train(x, y, opts.patch_size), num_parallel_calls=5)
+	dataset = dataset.batch(opts.batch_size)
+	# Operations between the final prefetch and the get_next call to the iterator
+	# will happen synchronously during run time. We prefetch here again to
+	# background all of the above processing work and keep it out of the
+	# critical training path.
+	dataset = dataset.prefetch(1)
+
+	return dataset
 
 
+def save_tfrecord(sources, targets, opts):
 
-def save_tfrecord(opts, source, target):
+	def _bytes_feature(value):
+		return tf.train.Feature(bytes_list=tf.train.BytesList(value=value))
 
-	pass
+	def _int64_feature(value):
+		return tf.train.Feature(int64_list=tf.train.Int64List(value=value))
 
+	if not os.path.exists(opts.tf_dataset_dir):
+		os.makedirs(opts.tf_dataset_dir)
+	else:
+		print('The tf_dataset_dir already exists.')
+		return 0
 
+	output_file = os.path.join(opts.tf_dataset_dir, 'train.tfrecords')
 
+	writer = tf.python_io.TFRecordWriter(output_file)
 
+	print("Creating train.tfrecords...")
+	for i in range(len(sources)):
+		source, target = sources[i], targets[i]
 
+		example = tf.train.Example(features=tf.train.Features(
+			feature={
+				'source': _bytes_feature([source.tostring()]),
+				'target': _bytes_feature([target.tostring()]),
+				'shape': _int64_feature(source.shape),
+			}
+		))
+		writer.write(example.SerializeToString())
+
+	writer.close()
+	print('The train.tfrecords has been created: %s' % (output_file))
