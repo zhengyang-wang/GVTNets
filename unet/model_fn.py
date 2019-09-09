@@ -100,7 +100,7 @@ class Model(object):
 		input_fn_train = input_function(opts=self.opts, mode='train')
 
 		print('Start training...')
-		transformer.train(input_fn=input_fn_train, steps=self.opts.num_iters, hooks=[logging_hook])
+		transformer.train(input_fn=input_fn_train, hooks=[logging_hook])
 
 	def predict(self):
 		# Using the Winograd non-fused algorithms provides a small performance boost.

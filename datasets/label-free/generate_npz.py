@@ -36,8 +36,11 @@ def generate_files(opts, test):
 
 	if not test:
 		# Training data will be saved in npz files.
-		# FORMAT: {'X': (n_sample, n_channel, depth, height, width),
-		#		   'Y': (n_sample, n_channel, depth, height, width)}
+		# DTYPE: np.float32
+		# FORMAT:
+		#	Multiple npz files where each one contains one training sample:
+		#		{'X': (n_channel, depth, height, width),
+		#		 'Y': (n_channel, depth, height, width)}
 		output_dir = os.path.join(opts.npz_dataset_dir, 'train')
 		if not os.path.exists(output_dir):
 			os.makedirs(output_dir)

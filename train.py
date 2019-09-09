@@ -11,7 +11,8 @@ def main(_):
 	parser.add_argument('--gpu_id', type=int, help='which gpu to use')
 	# training data
 	parser.add_argument('--npz_dataset_dir', type=str, help='directory of npz files corresponding to training data')
-	parser.add_argument('--cropped', action="store_true", help='whether training data are already cropped')
+	parser.add_argument('--already_cropped', action="store_true", help='whether training data are already cropped')
+	parser.add_argument('--train_patch_size', nargs='+', type=int, default=[32, 64, 64], help='size of training patches after cropping: [(D,) H, W]')
 	parser.add_argument('--save_tfrecords', action="store_true", help='whether to save and use tfrecord files for faster I/O during training')
 	parser.add_argument('--tf_dataset_dir', type=str, help='directory of tfrecord files when --save_tfrecords')
 	parser.add_argument('--num_train_pairs', type=int, default=30, help='number of pairs for training')
@@ -20,7 +21,6 @@ def main(_):
 	parser.add_argument('--loss_type', type=str, default='MSE', help='meam squared error (MSE) or mean absolute error (MAE) loss')
 	parser.add_argument('--learning_rate', type=float, default=0.001, help='learning rate')
 	parser.add_argument('--num_iters', type=int, default=500, help='number of training iterations (each iteration processes one batch)')
-	parser.add_argument('--train_patch_size', nargs='+', type=int, default=[32, 64, 64], help='size of training patches after cropping: [(D,) H, W]')
 	# training/testing logs
 	parser.add_argument('--save_checkpoints_iter', type=int, default=500, help='iterations at which to save training checkpoints of model')
 	parser.add_argument('--model_dir', default='saved_models', help='directory to save logs of training and results of testing/prediction')
