@@ -50,7 +50,7 @@ class Model(object):
 
 		# Calculate the loss.
 		loss = get_loss(labels, features, outputs, self.opts.loss_type,
-					self.opts.probalistic, self.conf_unet['dimension'])
+					self.opts.probalistic, self.opts.offset, self.conf_unet['dimension'])
 
 		# Create a tensor named MSE for logging purposes.
 		tf.identity(loss, name=self.opts.loss_type)
