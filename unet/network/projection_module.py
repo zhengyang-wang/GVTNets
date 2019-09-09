@@ -7,7 +7,7 @@ from .attention_module import *
 By default, the bottom block and the upsample blocks are attention-based.
 """
 
-class _3d_to_2d(object):
+class ProjectionNet(object):
     def __init__(self, conf_unet):
 
         self.depth = conf_unet['depth']
