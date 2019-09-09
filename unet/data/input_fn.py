@@ -3,10 +3,20 @@ import os
 import numpy as np
 
 def load_npz(opts):
-
-	data = np.load(opts.npz_dataset_dir)
-	source = np.moveaxis(data['X'], 1, -1) 
-	target = np.moveaxis(data['Y'], 1, -1)
+	fnames = [fname for fname in os.listdir(opts.npz_dataset_dir) if 
+			fnmatch.fnmatch(file, '*.npz')]
+	if len(fnames)==1:
+		data = np.load(opts.npz_dataset_dir)
+		sources = np.moveaxis(data['X'], 1, -1) 
+		targets = np.moveaxis(data['Y'], 1, -1)
+	else:
+		sources = []
+		targets = []
+		for fname in fnames:
+			data = np.load(opts.npz_dataset_dir)
+			sources.append(np.moveaxis(data['X'], 1, -1))
+			targets.append(np.moveaxis(data['Y'], 1, -1))
+		
 	return source, target
 
 
