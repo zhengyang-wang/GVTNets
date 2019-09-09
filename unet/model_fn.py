@@ -40,10 +40,11 @@ class Model(object):
 		if self.opts.proj_model:
 			projection = ProjectionNet(self.conf_unet)
 			features = projection(features, mode == tf.estimator.ModeKeys.TRAIN)
-			self.conf_unet['dimension'] = '2D'
+			assert self.conf_unet['dimension'] == '2D'
 		network = UNet(self.conf_unet)
 		outputs = network(features, mode == tf.estimator.ModeKeys.TRAIN)
 
+		# If set opts.offset true, outputs will be considered as an offset to inputs
 		predictions = {'pixel_values': tf.add(features, outputs) if self.opts.offset else outputs}
 
 		if mode == tf.estimator.ModeKeys.PREDICT:
@@ -97,9 +98,7 @@ class Model(object):
 		tensors_to_log = {self.opts.loss_type: self.opts.loss_type}
 		logging_hook = tf.train.LoggingTensorHook(tensors=tensors_to_log, every_n_iter=100)
 
-		input_function = input_function if not self.opts.npz else input_function_npz
-		def input_fn_train():
-			return input_function(opts=self.opts, mode='train')
+		input_fn_train = input_function(opts=self.opts, mode='train')
 
 		print('Start training...')
 		classifier.train(input_fn=input_fn_train, hooks=[logging_hook])
