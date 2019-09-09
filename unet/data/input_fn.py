@@ -17,16 +17,17 @@ def load_npz(opts):
 			sources.append(np.moveaxis(data['X'], 1, -1))
 			targets.append(np.moveaxis(data['Y'], 1, -1))
 		
-	return source, target
+	return sources, targets
 
 
-def input_function(opts, source, target):
+def input_function(opts, mode):
 	'''
 	Args:
 		source: source images of shape [n_samples, (D,) H, W, n_channels]
 		target: target images of shape [n_samples, (D,) H, W, n_channels]
 	'''
-	
+	# TODO: implement for prediction input
+	sources, targets = load_npz(opts)
 	if opts.cropped:
 		input_fn = input_fn_numpy(source, target, opts)
 	elif not opts.save_tfrecords:
