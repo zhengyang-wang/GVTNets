@@ -3,19 +3,25 @@ import os
 import numpy as np
 
 def load_npz(opts):
+	""" Loading data from npz files. 
+	    Source image(s) and target image(s) are saved as 'X' and 'Y' per npz file with dtype 'float32'.
+	    Could be a single npz file of shapes [n_samples, n_channels, (D,) W, H],
+	    or a list of files of shape [n_channels, (D,) W, H] (for images with different sizes).
+	"""
 	fnames = [fname for fname in os.listdir(opts.npz_dataset_dir) if 
 			fnmatch.fnmatch(file, '*.npz')]
 	if len(fnames)==1:
 		data = np.load(opts.npz_dataset_dir)
-		sources = np.moveaxis(data['X'], 1, -1) 
+		# moving channel dimension to the last
+		sources = np.moveaxis(data['X'], 1, -1)
 		targets = np.moveaxis(data['Y'], 1, -1)
 	else:
 		sources = []
 		targets = []
 		for fname in fnames:
 			data = np.load(opts.npz_dataset_dir)
-			sources.append(np.moveaxis(data['X'], 1, -1))
-			targets.append(np.moveaxis(data['Y'], 1, -1))
+			sources.append(np.moveaxis(data['X'], 0, -1))
+			targets.append(np.moveaxis(data['Y'], 0, -1))
 		
 	return sources, targets
 
