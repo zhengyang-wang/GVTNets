@@ -129,7 +129,7 @@ def up_gto_v2(inputs, output_filters, training, dimension, name):
 
 
 def up4_gto_v2(inputs, output_filters, training, dimension, name):
-	"""4 times upsampling, used for projection models"""
+	"""4 times upsampling, used for projection models, e.g. Flywing Projection"""
 	if conf_attn_up['key_ratio'] != 1:
 		raise ValueError("Must set key_ratio == 1!")
 
