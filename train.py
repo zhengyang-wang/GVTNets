@@ -8,14 +8,15 @@ from network_configure import conf_basic_ops, conf_attn_same, conf_attn_up, conf
 
 def main(_):
 	parser = argparse.ArgumentParser()
-	parser.add_argument('--npz_dataset_dir', type=str, help='directory of npz files, only used with --npz')
-	parser.add_argument('--cropped', action="store_true", help='whether input dataset is already cropped')
-	parser.add_argument('--save_tfrecords', action="store_true", help='whether save and use tfrecord files')
-	parser.add_argument('--tf_dataset_dir', type=str, help='directory of tfrecord files')
+	# training data
+	parser.add_argument('--npz_dataset_dir', type=str, help='directory of npz files corresponding to training data')
+	parser.add_argument('--cropped', action="store_true", help='whether training data are already cropped')
+	parser.add_argument('--save_tfrecords', action="store_true", help='whether to save and use tfrecord files for faster I/O during training')
+	parser.add_argument('--tf_dataset_dir', type=str, help='directory of tfrecord files when --save_tfrecords')
 	parser.add_argument('--num_train_pairs', type=int, default=30, help='number of pairs for training')
-	parser.add_argument('--batch_size', type=int, default=24, help='size of each batch')
-	parser.add_argument('--buffer_size', type=int, default=30, help='number of images to cache in memory')
-	parser.add_argument('--loss_type', type=str, default='MSE', help='meam squared error or mean absolute error loss')
+	# training settings
+	parser.add_argument('--batch_size', type=int, default=24, help='size of each batch during training')
+	parser.add_argument('--loss_type', type=str, default='MSE', help='meam squared error (MSE) or mean absolute error (MAE) loss')
 	parser.add_argument('--learning_rate', type=float, default=0.001, help='learning rate')
 	parser.add_argument('--num_iters', type=int, default=500, help='number of training iterations')
 	parser.add_argument('--save_checkpoints_iter', type=int, default=500, help='iterations at which to save checkpoints of model')
