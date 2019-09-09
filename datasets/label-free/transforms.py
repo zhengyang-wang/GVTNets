@@ -80,7 +80,7 @@ class Padder(object):
         """Crops input so its dimensions matches dimensions of last input to __call__."""
         assert x_in.shape == self.last_pad['shape_out']
         slices = [slice(a, -b) if (a, b) != (0, 0) else slice(None) for a, b in self.last_pad['pad_width']]
-        return x_in[slices].copy()
+        return x_in[tuple(slices)].copy()
 
     def __call__(self, x_in):
         shape_in = x_in.shape
@@ -167,7 +167,7 @@ class Cropper(object):
         else:
             self.crops[shape_in] = {}
             slices = self._calc_slices(shape_in)
-        x_out = x_in[slices].copy()
+        x_out = x_in[tuple(slices)].copy()
         self.last_crop = {'shape_in': shape_in, 'slices': slices, 'shape_out': x_out.shape}
         return x_out
 
@@ -177,7 +177,7 @@ class Cropper(object):
         shape_out = self.last_crop['shape_in']
         slices = self.last_crop['slices']
         x_out = np.zeros(shape_out, dtype=x_in.dtype)
-        x_out[slices] = x_in
+        x_out[tuple(slices)] = x_in
         return x_out
 
     
