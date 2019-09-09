@@ -8,8 +8,10 @@ from network_configure import conf_basic_ops, conf_attn_same, conf_attn_up, conf
 
 def main(_):
 	parser = argparse.ArgumentParser()
-	parser.add_argument('--tf_dataset_dir', type=str, help='directory of tfrecord files')
 	parser.add_argument('--npz_dataset_dir', type=str, help='directory of npz files, only used with --npz')
+	parser.add_argument('--cropped', action="store_true", help='whether input dataset is already cropped')
+	parser.add_argument('--save_tfrecords', action="store_true", help='whether save and use tfrecord files')
+	parser.add_argument('--tf_dataset_dir', type=str, help='directory of tfrecord files')
 	parser.add_argument('--num_train_pairs', type=int, default=30, help='number of pairs for training')
 	parser.add_argument('--batch_size', type=int, default=24, help='size of each batch')
 	parser.add_argument('--buffer_size', type=int, default=30, help='number of images to cache in memory')
