@@ -4,8 +4,8 @@ import tifffile
 import sys
 import numpy as np
 
-from unet.network import UNet
-from unet.data import input_function
+from unet.network import UNet, ProjectionNet, get_loss
+from unet.data import input_function, input_function_npz
 from unet.data import prepare_test
 
 
@@ -37,20 +37,25 @@ class Model(object):
 		Returns:
 			tf.estimator.EstimatorSpec
 		"""
+		if self.opts.proj_model:
+			projection = ProjectionNet(self.conf_unet)
+			features = projection(features, mode == tf.estimator.ModeKeys.TRAIN)
+			assert self.conf_unet['dimension'] == '2D'
 		network = UNet(self.conf_unet)
 		outputs = network(features, mode == tf.estimator.ModeKeys.TRAIN)
 
-		predictions = {'pixel_values': outputs}
+		# If set opts.offset true, outputs will be considered as an offset to inputs
+		predictions = {'pixel_values': tf.add(features, outputs) if self.opts.offset else outputs}
 
 		if mode == tf.estimator.ModeKeys.PREDICT:
 			return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions)
 
 		# Calculate the MSE loss.
-		loss = tf.losses.mean_squared_error(labels, outputs)
+		loss = get_loss(labels, features, outputs, self.opts, self.conf_unet)
 
 		# Create a tensor named MSE for logging purposes.
-		tf.identity(loss, name='MSE')
-		tf.summary.scalar('MSE', loss)
+		tf.identity(loss, name=self.opts.loss_type)
+		tf.summary.scalar(self.opts.loss_type, loss)
 
 		if mode == tf.estimator.ModeKeys.TRAIN:
 			global_step = tf.train.get_or_create_global_step()
@@ -85,25 +90,24 @@ class Model(object):
 						keep_checkpoint_max=0,
 						session_config=session_config)
 
-		classifier = tf.estimator.Estimator(
+		transformer = tf.estimator.Estimator(
 						model_fn=self._model_fn,
 						model_dir=self.opts.model_dir,
 						config=run_config)
 
-		tensors_to_log = {'MSE': 'MSE'}
+		tensors_to_log = {self.opts.loss_type: self.opts.loss_type}
 		logging_hook = tf.train.LoggingTensorHook(tensors=tensors_to_log, every_n_iter=100)
 
-		def input_fn_train():
-			return input_function(opts=self.opts, mode='train')
+		input_fn_train = input_function(opts=self.opts, mode='train')
 
 		print('Start training...')
-		classifier.train(input_fn=input_fn_train, hooks=[logging_hook])
+		transformer.train(input_fn=input_fn_train, steps=self.opts.num_iters, hooks=[logging_hook])
 
 	def predict(self):
 		# Using the Winograd non-fused algorithms provides a small performance boost.
 		os.environ['TF_ENABLE_WINOGRAD_NONFUSED'] = '1'
 
-		classifier = tf.estimator.Estimator(
+		transformer = tf.estimator.Estimator(
 						model_fn=self._model_fn,
 						model_dir=self.opts.model_dir)
 
@@ -111,7 +115,7 @@ class Model(object):
 			return input_function(opts=self.opts, mode='pred')
 
 		checkpoint_file = os.path.join(self.opts.model_dir, 'model.ckpt-'+str(self.opts.checkpoint_num))
-		preds = classifier.predict(input_fn=input_fn_predict, checkpoint_path=checkpoint_file)
+		preds = transformer.predict(input_fn=input_fn_predict, checkpoint_path=checkpoint_file)
 
 		model_name = self.opts.model_dir.split('/')[-1]
 		pred_result_dir = os.path.join(self.opts.result_dir, model_name)

@@ -1,0 +1,6 @@
+__pycache__/
+.DS_Store
+unet/.DS_Store
+unet/network/.DS_Store
+unet/network/__pycache__/
+unet/data/__pycache__/

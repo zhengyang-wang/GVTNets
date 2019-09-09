@@ -8,6 +8,8 @@ import scipy.stats as stats
 from tqdm import tqdm
 from tifffile import imread
 from sklearn.metrics import r2_score
+from scipy.misc import ascent
+from skimage.measure import compare_psnr, compare_mse, compare_ssim
 
 def evaluate_function(prediction_file=None, target_file=None, prediction_dir=None, target_dir=None, overwrite=True):
 	if prediction_file != None and target_file != None:
@@ -94,8 +96,49 @@ def get_stats(pred, target):
 	delta_min = np.min(delta) 
 	delta_max = np.max(delta)
 	
-	all_stats = {'n_pixels':  n_pixels, 'mse': mse, 'R2': R2, 'r': r, 'exp_var': exp_var, \
+	target_, pred_ = norm_minmse(target, pred)
+    
+	nrmse = np.sqrt(compare_mse(target_, pred_))
+	psnr = compare_psnr(target_, pred_, data_range = 1.)
+	ssim = compare_ssim(target_, pred_, data_range = 1., multichannel=multichan)
+    
+	all_stats = {'n_pixels':  n_pixels, 'mse': mse, 'R2': R2, \
+			 'nrmse': nrmse, 'psnr': psnr, 'ssim': ssim, \
+			 'r': r, 'exp_var': exp_var, \
 			 'var_pred': var_pred, 'var_target': var_target, \
 			 'delta_min': delta_min, 'delta_max': delta_max}
 	
 	return err_map, se, all_stats
+
+def norm_minmse(gt, x, normalize_gt=True):
+	if normalize_gt:
+		gt = normalize(gt, 0.1, 99.9, clip=False).astype(np.float32, copy = False)
+	x = x.astype(np.float32, copy=False) - np.mean(x)
+	gt = gt.astype(np.float32, copy=False) - np.mean(gt)
+	scale = np.cov(x.flatten(), gt.flatten())[0, 1] / np.var(x.flatten())
+	return gt, scale * x
+
+
+def normalize(x, pmin=3, pmax=99.8, axis=None, clip=False, eps=1e-20, dtype=np.float32):
+	mi = np.percentile(x,pmin,axis=axis,keepdims=True)
+	ma = np.percentile(x,pmax,axis=axis,keepdims=True)
+	return normalize_mi_ma(x, mi, ma, clip=clip, eps=eps, dtype=dtype)
+
+
+def normalize_mi_ma(x, mi, ma, clip=False, eps=1e-20, dtype=np.float32):
+	if dtype is not None:
+		x = x.astype(dtype,copy=False)
+		mi  = dtype(mi) if np.isscalar(mi) else mi.astype(dtype,copy=False)
+		ma  = dtype(ma) if np.isscalar(ma) else ma.astype(dtype,copy=False)
+		eps = dtype(eps)
+
+	try:
+		import numexpr
+		x = numexpr.evaluate("(x - mi) / ( ma - mi + eps )")
+	except ImportError:
+		x = (x - mi) / ( ma - mi + eps )
+
+	if clip:
+		x = np.clip(x,0,1)
+
+	return x
