@@ -86,7 +86,7 @@ def input_fn_numpy(sources, targets, opts, shuffle=True):
 def input_fn_generator(sources, targets, opts, shuffle=True):
 
 	def generator():
-		for i in range(opts.num_iters):
+		for i in range(opts.num_iters * opts.batch_size):
 			if shuffle:
 				idx = np.random.randint(len(sources))
 			else:
