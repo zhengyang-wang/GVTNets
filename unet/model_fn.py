@@ -110,8 +110,7 @@ class Model(object):
 						model_fn=self._model_fn,
 						model_dir=self.opts.model_dir)
 
-		def input_fn_predict():
-			return input_function(opts=self.opts, mode='pred')
+		input_fn_predict = input_function(opts=self.opts, mode='pred')
 
 		checkpoint_file = os.path.join(self.opts.model_dir, 'model.ckpt-'+str(self.opts.checkpoint_num))
 		preds = transformer.predict(input_fn=input_fn_predict, checkpoint_path=checkpoint_file)
@@ -123,6 +122,9 @@ class Model(object):
 		pred_result_dir = os.path.join(pred_result_dir, 'checkpoint_%s' % str(self.opts.checkpoint_num))
 		if not os.path.exists(pred_result_dir):
 			os.makedirs(pred_result_dir)
+
+		# if self.opts.cropped_prediction:
+
 		pred_result_dir = os.path.join(pred_result_dir, 'patch%s_step%s' \
 				% (str(self.opts.test_patch_size), str(self.opts.test_step_size)))
 		if not os.path.exists(pred_result_dir):

@@ -20,7 +20,7 @@ def self_attention(inputs, total_key_filters, total_value_filters, output_filter
 		num_heads: an integer dividing total_key_filters and total_value_filters
 		training: a boolean for dropout
 		dimension: a string, dimension of inputs/outputs -- 2D, 3D
-		layer_type: a string, type of this layer -- SAME, DOWN, UP
+		layer_type: a string, type of this layer -- SAME, DOWN, UP, UP4
 		name: a string
 		dropout_rate: a float between 0.0 and 1.0. No dropout if dropout_rate = 0.0
 		use_softmax: a boolean deciding whether to use softmax. Note that use_softmax = False
@@ -34,7 +34,7 @@ def self_attention(inputs, total_key_filters, total_value_filters, output_filter
 		ValueError: if the total_key_filters or total_value_filters are not divisible
 			by the number of attention heads.
 		ValueError: if dimension is not one of ['2D', '3D'].
-		ValueError: if layer_type is not one of ['SAME', 'DOWN', 'UP'].
+		ValueError: if layer_type is not one of ['SAME', 'DOWN', 'UP', 'UP4'].
 	"""
 	if total_key_filters % num_heads != 0:
 		raise ValueError("Key depth (%d) must be divisible by the number of "
@@ -42,8 +42,8 @@ def self_attention(inputs, total_key_filters, total_value_filters, output_filter
 	if total_value_filters % num_heads != 0:
 		raise ValueError("Value depth (%d) must be divisible by the number of "
 						"attention heads (%d)." % (total_value_filters, num_heads))
-	if layer_type not in ['SAME', 'DOWN', 'UP']:
-		raise ValueError("Layer type (%s) must be one of SAME, DOWN, UP." % (layer_type))
+	if layer_type not in ['SAME', 'DOWN', 'UP', 'UP4']:
+		raise ValueError("Layer type (%s) must be one of SAME, DOWN, UP, UP4." % (layer_type))
 
 	if dimension == '2D':
 		compute_qkv = compute_qkv_2d
