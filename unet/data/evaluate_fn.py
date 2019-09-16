@@ -134,7 +134,7 @@ def normalize_mi_ma(x, mi, ma, clip=False, eps=1e-20, dtype=np.float32):
 
 	try:
 		import numexpr
-		x = numexpr.evaluate("(x - mi) / ( ma - mi + eps )")
+		x = numexpr.evaluate("(x - mi) / (ma - mi + eps)")
 	except ImportError:
 		x = (x - mi) / (ma - mi + eps)
 
