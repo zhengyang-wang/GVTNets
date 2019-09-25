@@ -206,8 +206,7 @@ def dot_product_attention(q, k, v, training, dropout_rate, use_softmax):
 		attention_weights = tf.matmul(q, k, transpose_b=True)
 
 		# normalize attention
-		if use_softmax:
-			attention_weights = tf.nn.softmax(attention_weights)
+		attention_weights = tf.nn.softmax(attention_weights)
 
 		# dropping out the attention links for each of the heads
 		if dropout_rate != 0.0:
