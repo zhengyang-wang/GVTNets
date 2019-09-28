@@ -11,7 +11,7 @@ from sklearn.metrics import r2_score
 from scipy.misc import ascent
 from skimage.measure import compare_psnr, compare_mse, compare_ssim
 
-def evaluate_function(prediction_file=None, target_file=None, prediction_dir=None, target_dir=None, overwrite=True):
+def evaluate_function(prediction_file=None, target_file=None, prediction_dir=None, target_dir=None, stats_file=None, overwrite=True):
 	if prediction_file != None and target_file != None:
 		print('Evaluate the prediction: %s' % prediction_file)
 		predictions = [prediction_file]
@@ -22,10 +22,8 @@ def evaluate_function(prediction_file=None, target_file=None, prediction_dir=Non
 		predictions = sorted([os.path.join(prediction_dir, f) for f in os.listdir(prediction_dir)])
 		targets = sorted(glob.glob(target_dir + '/target*'))
 		save_stats = True
-		stats_file = os.path.join(target_dir, 'stats_%s_%s_%s.pkl' %\
-					 (prediction_dir.split('/')[-3], prediction_dir.split('/')[-2], prediction_dir.split('/')[-1]))
 	else:
-		print('You need to specific either prediction_file + target_file or prediction_dir + target_dir!')
+		print('You need to specific either prediction_file + target_file or prediction_dir + target_dir + stats_file!')
 		return -1
 
 	assert len(predictions) == len(targets)
@@ -100,7 +98,7 @@ def get_stats(pred, target):
     
 	nrmse = np.sqrt(compare_mse(target_, pred_))
 	psnr = compare_psnr(target_, pred_, data_range=1.)
-	ssim = compare_ssim(target_, pred_, data_range=1., multichannel=multichan)
+	ssim = compare_ssim(target_, pred_, data_range=1., multichannel=False)
     
 	all_stats = {'n_pixels':  n_pixels, 'mse': mse, 'R2': R2, \
 			 'nrmse': nrmse, 'psnr': psnr, 'ssim': ssim, \

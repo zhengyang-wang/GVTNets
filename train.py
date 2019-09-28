@@ -21,9 +21,9 @@ def main(_):
 	parser.add_argument('--loss_type', type=str, default='MSE', help='meam squared error (MSE) or mean absolute error (MAE) loss')
 	parser.add_argument('--learning_rate', type=float, default=0.001, help='learning rate')
 	parser.add_argument('--num_iters', type=int, default=500, help='number of training iterations (each iteration processes one batch)')
-	# training/testing logs
+	# training checkpoints
 	parser.add_argument('--save_checkpoints_iter', type=int, default=500, help='iterations at which to save training checkpoints of model')
-	parser.add_argument('--model_dir', default='saved_models', help='directory to save logs of training and results of testing/prediction')
+	parser.add_argument('--model_dir', default='saved_models', help='directory to save settings and checkpoints of model during training')
 	# extra options
 	parser.add_argument('--proj_model', action="store_true", help='whether to use ProjectionNet to project 3D images to 2D, \
 																	used in 3D-to-2D transform task, e.g. Flywings projection')

@@ -40,6 +40,9 @@ class UNet(object):
 	# Composite blocks building the network
 	################################################################################
 	def _build_network(self, inputs, training):
+		
+		#################### Encoder ####################
+
 		# first_convolution
 		if self.dimension == '2D':
 			convolution = convolution_2D
@@ -77,6 +80,8 @@ class UNet(object):
 				inputs = current_func(inputs, output_filters, training, self.dimension,
 							'block_%d' % block_index)
 
+		#################### Decoder ####################
+		
 		"""
 		Note: Identity skip connections are between the output of encoding_block_i and
 		the output of upsampling in decoding_block_i, i = 1, 2, ..., depth-1.

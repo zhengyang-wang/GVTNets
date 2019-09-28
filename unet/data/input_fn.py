@@ -2,6 +2,7 @@ import tensorflow as tf
 import os
 import numpy as np
 import fnmatch
+from tifffile import imread
 
 
 def load_training_npz(npz_dataset_dir, num_train_pairs):
@@ -52,35 +53,85 @@ def load_training_npz(npz_dataset_dir, num_train_pairs):
 	return sources, targets
 
 
+def load_testing_tiff(tiff_dataset_dir, num_test_pairs):
+	""" Loading data from tiff files.
+	DTYPE: np.float32
+
+	Return:
+		A list of numpy arrays of shape [n_sample, (depth,) height, width, n_channel].
+		n_sample is larger than 1 if cropped_prediction.
+		Each entry in the list corresponds to one data sample.
+	"""
+	print("Loading tiff file(s)...")
+	fnames = [fname for fname in os.listdir(tiff_dataset_dir) if 
+				fnmatch.fnmatch(fname, '*.tiff')]
+	fnames.sort()
+	fnames = [os.path.join(tiff_dataset_dir, fname) for fname in fnames]
+
+	sources = []
+
+	for fname in fnames:
+		data = imread(fname)
+		data = np.expand_dims(data, axis=-1)
+		sources.append(np.expand_dims(data, axis=0))
+	
+	assert len(sources) == num_test_pairs, "len(sources) is %d" % len(sources)
+
+	print("Data loaded.")
+	return sources
+
+
 def input_function(opts, mode):
-	# TODO: implement for prediction input
-	sources, targets = load_training_npz(opts.npz_dataset_dir, opts.num_train_pairs)
+	if mode == 'train':
+		sources, targets = load_training_npz(opts.npz_dataset_dir, opts.num_train_pairs)
 
-	if opts.already_cropped:
-		# The training data have been cropped.
-		# The training data are stored in a single npz file.
-		input_fn = input_fn_numpy(sources, targets, opts)
+		if opts.already_cropped:
+			# The training data have been cropped.
+			# The training data are stored in a single npz file.
+			input_fn = input_fn_numpy(sources, targets, opts, mode)
 
-	elif not opts.save_tfrecords:
-		# The training data have NOT been cropped.
-		# The training data are stored in multiple npz files,
-		# where each one contains one training sample.
-		input_fn = lambda: input_fn_generator(sources, targets, opts)
+		elif not opts.save_tfrecords:
+			# The training data have NOT been cropped.
+			# The training data are stored in multiple npz files,
+			# where each one contains one training sample.
+			input_fn = lambda: input_fn_generator(sources, targets, opts)
+
+		else:
+			# Using tfrecords can handle both cases.
+			save_tfrecord(opts, sources, targets)
+			input_fn = lambda: input_fn_tfrecord(opts)
+
+		return input_fn
+
+	elif mode == 'predict':
+		sources = load_testing_tiff(opts.tiff_dataset_dir, opts.num_test_pairs)
+		# Each testing sample leads to one input function.
+		return [input_fn_numpy(s, None, opts, mode) for s in sources]
 
 	else:
-		# Using tfrecords can handle both cases.
-		save_tfrecord(opts, sources, targets)
-		input_fn = lambda: input_fn_tfrecord(opts)
-
-	return input_fn
+		raise ValueError("The mode (%s) must be train or predict." % (mode))
 
 
-def input_fn_numpy(sources, targets, opts, shuffle=True):
-	repeats = opts.num_iters * opts.batch_size // opts.num_train_pairs
+def input_fn_numpy(sources, targets, opts, mode, shuffle=True):
+	if mode == 'train':
+		repeats = opts.num_iters * opts.batch_size // opts.num_train_pairs
 
-	return tf.estimator.inputs.numpy_input_fn(
-				x=sources, y=targets, batch_size=opts.batch_size,
-				num_epochs=repeats, shuffle=shuffle)
+		return tf.estimator.inputs.numpy_input_fn(
+					x=sources,
+					y=targets,
+					batch_size=opts.batch_size,
+					num_epochs=repeats,
+					shuffle=shuffle)
+
+	elif mode == 'predict':
+		return tf.estimator.inputs.numpy_input_fn(
+					x=sources,
+					batch_size=opts.test_batch_size if opts.cropped_prediction else 1,
+					num_epochs=1,
+					shuffle=False)
+
+	else:
+		raise ValueError("The mode (%s) must be train or predict." % (mode))
 
 
 def input_fn_generator(sources, targets, opts, shuffle=True):
@@ -117,7 +168,7 @@ def input_fn_generator(sources, targets, opts, shuffle=True):
 	return dataset
 
 
-def input_fn_tfrecord(opts):
+def input_fn_tfrecord(opts, shuffle=True):
 
 	# TODO: compatability to 2D inputs
 	def decode_train(serialized_example):
