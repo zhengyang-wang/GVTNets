@@ -5,7 +5,7 @@ import sys
 import numpy as np
 
 from unet.network import UNet, ProjectionNet, get_loss
-from unet.data import input_function, input_fn_numpy
+from unet.data import train_input_function, pred_input_function, load_testing_tiff
 from unet.data import PercentileNormalizer, PadAndCropResizer, PatchPredictor
 
 """This script trains or evaluates the model.
@@ -56,7 +56,8 @@ class Model(object):
 
 		# Create a tensor named MSE/MAE for logging purposes.
 		if self.opts.probalistic:
-			true_loss = get_loss(labels, features, outputs, self.opts.loss_type, False,
+			# Exclude uncertainty terms in logged MSE/MAE
+			true_loss = get_loss(labels, outputs, penult, self.opts.loss_type, False,
 				self.opts.offset, self.conf_unet['dimension'])
 			tf.identity(true_loss, name=self.opts.loss_type)
 			tf.summary.scalar(self.opts.loss_type, true_loss)
@@ -104,19 +105,17 @@ class Model(object):
 		tensors_to_log = {self.opts.loss_type: self.opts.loss_type}
 		logging_hook = tf.train.LoggingTensorHook(tensors=tensors_to_log, every_n_iter=100)
 
-		train_input_fn = input_function(opts=self.opts, mode='train')
-
 		print('Start training...')
-		transformer.train(input_fn=train_input_fn, hooks=[logging_hook])
+		transformer.train(input_fn=train_input_function(opts=self.opts), hooks=[logging_hook])
 
-	def predict(self, sources, fnames):
-		assert len(sources)==len(fnames)
+	def predict(self):
+		sources, fnames = load_testing_tiff(self.opts.tiff_dataset_dir, self.opts.num_test_pairs)
 		pred_result_dir = os.path.join(self.opts.result_dir, 'checkpoint_%s' % str(self.opts.checkpoint_num))
-# 		if not os.path.exists(pred_result_dir):
-# 			os.makedirs(pred_result_dir)
-# 		else:
-# 			print('The result dir for checkpoint_num %d already exist.' % self.opts.checkpoint_num)
-# 			return 0
+		if not os.path.exists(pred_result_dir):
+			os.makedirs(pred_result_dir)
+		else:
+			print('The result dir for checkpoint_num %d already exist.' % self.opts.checkpoint_num)
+			return 0
 
 		# Using the Winograd non-fused algorithms provides a small performance boost.
 		os.environ['TF_ENABLE_WINOGRAD_NONFUSED'] = '1'
@@ -127,37 +126,35 @@ class Model(object):
 
 		checkpoint_file = os.path.join(self.opts.model_dir, 'model.ckpt-'+str(self.opts.checkpoint_num))
 
-		normalizer = PercentileNormalizer()
 		resizer = PadAndCropResizer()
 		cropper = (PatchPredictor(self.opts.patch_size, self.opts.overlap, self.opts.proj_model) if 
 			self.opts.cropped_prediction else None)
+		normalizer = PercentileNormalizer() if self.opts.CARE_normalize else None
 		div_n = (4 if self.opts.proj_model else 2)**(self.conf_unet['depth']-1)
 		excludes = ([3,0], 2) if self.opts.proj_model else (3,3)
 
 		for idx, source in enumerate(sources):
 			print('Predicting testing sample %d, shape %s ...' % (idx, str(source.shape)))
-			source = normalizer.before(source, 'ZYXC') if self.opts.normalize else source
+			source = normalizer.before(source, 'ZYXC') if self.opts.CARE_normalize else source
 			source = resizer.before(source, div_n=div_n, exclude=excludes[0])
 
 			if self.opts.cropped_prediction:
 				patches = cropper.before(source, div_n)
-				predict_input_fn = input_fn_numpy(patches, None, self.opts, 'predict')
-				prediction = transformer.predict(input_fn=predict_input_fn, checkpoint_path=checkpoint_file)
+				prediction = transformer.predict(
+					input_fn=pred_input_function(self.opts, patches), checkpoint_path=checkpoint_file)
 				prediction = np.stack([pred['pixel_values'] for pred in prediction])
 				prediction = cropper.after(prediction)
 			else:
 				# Take the entire image as the input and make predictions.
 				# If the image is very large, set --gpu_id to -1 to use cpu mode.
-				predict_input_fn = input_fn_numpy(source[None], None, self.opts, 'predict')
-				prediction = transformer.predict(input_fn=predict_input_fn, checkpoint_path=checkpoint_file)
+				prediction = transformer.predict(
+					input_fn=pred_input_function(self.opts, source[None]), checkpoint_path=checkpoint_file)
 				prediction = list(prediction)[0]['pixel_values']
 
 			prediction = resizer.after(prediction, exclude=excludes[1])
 			prediction = (normalizer.after(prediction) if
 				self.opts.normalize and normalizer.do_after() else prediction)
 			prediction = prediction[0] if self.opts.proj_model else prediction
-			if not os.path.exists(pred_result_dir):
-				os.makedirs(pred_result_dir)
 			path_tiff = os.path.join(pred_result_dir, 'pred_'+fnames[idx])
 			tifffile.imsave(path_tiff, prediction[..., 0])
 			print('saved:', path_tiff)
