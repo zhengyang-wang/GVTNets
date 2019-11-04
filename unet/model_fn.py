@@ -5,8 +5,8 @@ import sys
 import numpy as np
 
 from unet.network import UNet, ProjectionNet, get_loss
-from unet.data import input_function
-
+from unet.data import input_function, input_fn_numpy
+from unet.data import PercentileNormalizer, PadAndCropResizer, PatchPredictor
 
 """This script trains or evaluates the model.
 """
@@ -35,34 +35,41 @@ class Model(object):
 		Returns:
 			tf.estimator.EstimatorSpec
 		"""
+		features = tf.cast(features, tf.float32)
 		if self.opts.proj_model:
 			projection = ProjectionNet(self.conf_unet)
 			features = projection(features, mode == tf.estimator.ModeKeys.TRAIN)
-			assert self.conf_unet['dimension'] == '2D'
+			self.conf_unet['dimension'] = '2D'
 		network = UNet(self.conf_unet)
-		outputs = network(features, mode == tf.estimator.ModeKeys.TRAIN)
+		outputs, penult = network(features, mode == tf.estimator.ModeKeys.TRAIN)
+		outputs = tf.add(features, outputs) if self.opts.offset else outputs
 
 		# If set opts.offset true, outputs will be considered as an offset to inputs
-		predictions = {'pixel_values': tf.add(features, outputs) if self.opts.offset else outputs}
+		predictions = {'pixel_values': outputs}
 
 		if mode == tf.estimator.ModeKeys.PREDICT:
 			return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions)
 
 		# Calculate the loss.
-		loss = get_loss(labels, features, outputs, self.opts.loss_type,
+		loss = get_loss(labels, outputs, penult, self.opts.loss_type,
 					self.opts.probalistic, self.opts.offset, self.conf_unet['dimension'])
 
-		# Create a tensor named MSE for logging purposes.
-		tf.identity(loss, name=self.opts.loss_type)
-		tf.summary.scalar(self.opts.loss_type, loss)
+		# Create a tensor named MSE/MAE for logging purposes.
+		if self.opts.probalistic:
+			true_loss = get_loss(labels, features, outputs, self.opts.loss_type, False,
+				self.opts.offset, self.conf_unet['dimension'])
+			tf.identity(true_loss, name=self.opts.loss_type)
+			tf.summary.scalar(self.opts.loss_type, true_loss)
+		else:
+			tf.identity(loss, name=self.opts.loss_type)
+			tf.summary.scalar(self.opts.loss_type, loss)
 
 		if mode == tf.estimator.ModeKeys.TRAIN:
 			global_step = tf.train.get_or_create_global_step()
-
+			learning_rate = tf.train.exponential_decay(self.opts.learning_rate, global_step, 
+				self.opts.lr_decay_steps, self.opts.lr_decay_rate, True)
 			optimizer = tf.train.AdamOptimizer(
-							learning_rate=self.opts.learning_rate,
-							beta1=0.5,
-							beta2=0.999)
+							learning_rate=learning_rate)
 
 			# Batch norm requires update ops to be added as a dependency to train_op
 			update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
@@ -102,13 +109,14 @@ class Model(object):
 		print('Start training...')
 		transformer.train(input_fn=train_input_fn, hooks=[logging_hook])
 
-	def predict(self):
+	def predict(self, sources, fnames):
+		assert len(sources)==len(fnames)
 		pred_result_dir = os.path.join(self.opts.result_dir, 'checkpoint_%s' % str(self.opts.checkpoint_num))
-		if not os.path.exists(pred_result_dir):
-			os.makedirs(pred_result_dir)
-		else:
-			print('The result dir for checkpoint_num %d already exist.' % self.opts.checkpoint_num)
-			return 0
+# 		if not os.path.exists(pred_result_dir):
+# 			os.makedirs(pred_result_dir)
+# 		else:
+# 			print('The result dir for checkpoint_num %d already exist.' % self.opts.checkpoint_num)
+# 			return 0
 
 		# Using the Winograd non-fused algorithms provides a small performance boost.
 		os.environ['TF_ENABLE_WINOGRAD_NONFUSED'] = '1'
@@ -117,25 +125,44 @@ class Model(object):
 						model_fn=self._model_fn,
 						model_dir=self.opts.model_dir)
 
-		predict_input_fns = input_function(opts=self.opts, mode='predict')
-
 		checkpoint_file = os.path.join(self.opts.model_dir, 'model.ckpt-'+str(self.opts.checkpoint_num))
 
-		for idx, predict_input_fn in enumerate(predict_input_fns):
-			print('Predicting testing sample %d ...' % idx)
-			prediction = transformer.predict(input_fn=predict_input_fn, checkpoint_path=checkpoint_file)
+		normalizer = PercentileNormalizer()
+		resizer = PadAndCropResizer()
+		cropper = (PatchPredictor(self.opts.patch_size, self.opts.overlap, self.opts.proj_model) if 
+			self.opts.cropped_prediction else None)
+		div_n = (4 if self.opts.proj_model else 2)**(self.conf_unet['depth']-1)
+		excludes = ([3,0], 2) if self.opts.proj_model else (3,3)
+
+		for idx, source in enumerate(sources):
+			print('Predicting testing sample %d, shape %s ...' % (idx, str(source.shape)))
+			source = normalizer.before(source, 'ZYXC') if self.opts.normalize else source
+			source = resizer.before(source, div_n=div_n, exclude=excludes[0])
 
 			if self.opts.cropped_prediction:
-				pass
-
+				patches = cropper.before(source, div_n)
+				predict_input_fn = input_fn_numpy(patches, None, self.opts, 'predict')
+				prediction = transformer.predict(input_fn=predict_input_fn, checkpoint_path=checkpoint_file)
+				prediction = np.stack([pred['pixel_values'] for pred in prediction])
+				prediction = cropper.after(prediction)
 			else:
 				# Take the entire image as the input and make predictions.
 				# If the image is very large, set --gpu_id to -1 to use cpu mode.
-				prediction = list(prediction)
-				prediction = prediction[0]['pixel_values'][:, :, :, 0]
-				path_tiff = os.path.join(pred_result_dir, 'prediction_{:02d}.tiff'.format(idx))
-				tifffile.imsave(path_tiff, prediction)
-				print('saved:', path_tiff)
+				predict_input_fn = input_fn_numpy(source[None], None, self.opts, 'predict')
+				prediction = transformer.predict(input_fn=predict_input_fn, checkpoint_path=checkpoint_file)
+				prediction = list(prediction)[0]['pixel_values']
+
+			prediction = resizer.after(prediction, exclude=excludes[1])
+			prediction = (normalizer.after(prediction) if
+				self.opts.normalize and normalizer.do_after() else prediction)
+			prediction = prediction[0] if self.opts.proj_model else prediction
+			if not os.path.exists(pred_result_dir):
+				os.makedirs(pred_result_dir)
+			path_tiff = os.path.join(pred_result_dir, 'pred_'+fnames[idx])
+			tifffile.imsave(path_tiff, prediction[..., 0])
+			print('saved:', path_tiff)
 
 		print('Done.')
 		sys.exit(0)
+
+        
