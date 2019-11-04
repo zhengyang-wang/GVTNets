@@ -59,8 +59,8 @@ class ProjectionNet(object):
                 outputs = max_pooling3d(outputs, (1,4,4), (1,4,4), name='Downsample_%d' % n)
             
             # bottom_blocks
-            for n, bottom in enumerate(conf_unet['bottom_block']):
-                bottom_block = _get_bottom_function(bottom)
+            for n, bottom in enumerate(self.bottom_block):
+                bottom_block = self._get_bottom_function(bottom)
                 conv_path = batch_norm(outputs, training, 'BN_bottom_%d' % n)
                 conv_path = relu(conv_path, 'Relu_bottom_%d' % n)
                 conv_path = convolution_3D(conv_path, 8, (3,5,5), 1, True, 'Conv_bottom_%d' % n)
@@ -68,8 +68,8 @@ class ProjectionNet(object):
                 outputs = outputs + conv_path
             
             # decoding_blocks
-            for n, upsample in reversed(list(enumerate(conf_unet['upsampling']))):
-                upsample_block = _get_upsampling_function(upsample)
+            for n, upsample in reversed(list(enumerate(self.upsampling))):
+                upsample_block = self._get_upsampling_function(upsample)
                 outputs = upsample_block(outputs, 8, training, '3D', 'Upsample_%d' % n)
                 outputs = batch_norm(outputs, training, 'BN_up_%d' % n)
                 outputs = relu(outputs, 'Relu_up_%d' % n)

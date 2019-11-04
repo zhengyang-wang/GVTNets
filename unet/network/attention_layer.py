@@ -218,7 +218,7 @@ def dot_product_attention(q, k, v, training, dropout_rate, use_softmax):
 		kv = tf.matmul(k, v, transpose_a=True)
 
 		# normalize
-		kv /= tf.cast(tf.shape(k)[2], tf.float32)
+		kv = kv/tf.cast(tf.shape(q)[2], tf.float32)
 
 		return tf.matmul(q, kv)
 

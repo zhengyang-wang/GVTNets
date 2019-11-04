@@ -19,6 +19,8 @@ class UNet(object):
 		self.decoding_block_sizes = conf_unet['decoding_block_sizes']
 		self.upsampling = conf_unet['upsampling']
 		self.skip_method = conf_unet['skip_method']
+		self.out_kernel_size = conf_unet['out_kernel_size']
+		self.out_kernel_bias = conf_unet['out_kernel_bias']
 
 
 	def __call__(self, inputs, training):
@@ -48,6 +50,7 @@ class UNet(object):
 			convolution = convolution_2D
 		elif self.dimension == '3D':
 			convolution = convolution_3D
+		inputs = tf.cast(inputs, tf.float32)
 		inputs = convolution(inputs, self.first_output_filters, 3, 1, False, 'first_convolution')
 
 		# encoding_block_1
@@ -112,11 +115,12 @@ class UNet(object):
 								'res_%d' % block_index)
 
 		# output
+		penult = inputs
 		inputs = batch_norm(inputs, training, 'batch_norm_output')
 		inputs = relu(inputs, 'relu_output')
-		inputs = convolution(inputs, 1, 3, 1, True, 'output_convolution')
+		inputs = convolution(inputs, 1, self.out_kernel_size, 1, self.out_kernel_bias, 'out_conv')
 
-		return inputs
+		return inputs, penult
 
 
 	def _get_bottom_function(self, name):

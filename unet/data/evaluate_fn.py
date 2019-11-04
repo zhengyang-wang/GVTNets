@@ -1,6 +1,4 @@
-import os
-import glob
-import pickle
+import os, pickle, glob, fnmatch
 import pandas as pd
 import numpy as np
 import scipy.stats as stats
@@ -19,16 +17,20 @@ def evaluate_function(prediction_file=None, target_file=None, prediction_dir=Non
 		save_stats = False
 	elif prediction_dir != None and target_dir != None:
 		print('Evaluate the predictions in %s' % prediction_dir)
-		predictions = sorted([os.path.join(prediction_dir, f) for f in os.listdir(prediction_dir)])
-		targets = sorted(glob.glob(target_dir + '/target*'))
+		predictions = sorted([os.path.join(prediction_dir, f) for f in os.listdir(prediction_dir) if 
+				fnmatch.fnmatch(f, '*.tif*')])
+		targets = sorted([os.path.join(target_dir, f) for f in os.listdir(target_dir) if 
+				fnmatch.fnmatch(f, '*.tif*')])
 		save_stats = True
 	else:
-		print('You need to specific either prediction_file + target_file or prediction_dir + target_dir + stats_file!')
+		print('You need to specify either prediction_file + target_file or prediction_dir + target_dir + stats_file!')
 		return -1
 
-	assert len(predictions) == len(targets)
+	assert len(predictions) == len(targets), ('Length of predictions %d does not match length of targets %d'
+                                              %(len(predictions),len(targets)))
 	for i in range(len(predictions)):
-		assert predictions[i].split('_')[-1] == targets[i].split('_')[-1], 'Prediction-Target pairs do not match!'
+		assert os.path.basename(predictions[i]).strip('pred_') == os.path.basename(targets[i]), \
+				'Prediction-Target pairs do not match!'
 
 	if save_stats and not overwrite and os.path.exists(stats_file):
 		stats_all, stats_per_im = pickle.load(open(stats_file, "rb"))
@@ -37,9 +39,9 @@ def evaluate_function(prediction_file=None, target_file=None, prediction_dir=Non
 		stats_per_im, stats_all = eval_images(targets, predictions)
 		if save_stats:
 			pickle.dump([stats_all, stats_per_im], open(stats_file, "wb"))
-			print(stats_all)
+			print(stats_all[['r','ssim','nrmse','psnr']])
 		else:
-			print(stats_all)
+			print(stats_all['r','ssim','nrmse','psnr'])
 
 def eval_images(path_targets, path_preds):
 	log_per_im = list()
@@ -60,14 +62,17 @@ def eval_images(path_targets, path_preds):
 		log_per_im.append(df_per_im)
 	log_per_im = pd.concat(log_per_im)
 		
-	im_pred_all_flat = np.hstack([im.flatten() for im in im_preds])
-	im_target_all_flat = np.hstack([im.flatten() for im in im_targets])
-	err_map, n_pixels, stats = get_stats(im_pred_all_flat, im_target_all_flat)
-	log_all = pd.DataFrame.from_dict([stats])
+# 	im_pred_all_flat = np.hstack([im.flatten() for im in im_preds])
+# 	im_target_all_flat = np.hstack([im.flatten() for im in im_targets])
+# 	err_map, n_pixels, stats = get_stats(im_pred_all_flat, im_target_all_flat)
+# 	log_all = pd.DataFrame.from_dict([stats])
+	log_all = log_per_im.mean(axis=0)
 
 	return log_per_im, log_all
 
 def get_stats(pred, target):
+	nrmse, psnr, ssim = get_scores(target, pred)
+    
 	delta = pred - target
 	err_map = (delta)**2
 	se = np.sum(err_map)
@@ -93,12 +98,6 @@ def get_stats(pred, target):
 	
 	delta_min = np.min(delta) 
 	delta_max = np.max(delta)
-	
-	target_, pred_ = norm_minmse(target, pred)
-    
-	nrmse = np.sqrt(compare_mse(target_, pred_))
-	psnr = compare_psnr(target_, pred_, data_range=1.)
-	ssim = compare_ssim(target_, pred_, data_range=1., multichannel=False)
     
 	all_stats = {'n_pixels':  n_pixels, 'mse': mse, 'R2': R2, \
 			 'nrmse': nrmse, 'psnr': psnr, 'ssim': ssim, \
@@ -107,6 +106,18 @@ def get_stats(pred, target):
 			 'delta_min': delta_min, 'delta_max': delta_max}
 	
 	return err_map, se, all_stats
+
+
+def get_scores(gt, x, multichan=False):
+    
+	gt_, x_ = norm_minmse(gt, x)
+    
+	mse = compare_mse(gt_, x_)
+	psnr = compare_psnr(gt_, x_, data_range = 1.)
+	ssim = compare_ssim(gt_, x_, data_range = 1., multichannel=multichan)
+    
+	return np.sqrt(mse), psnr, ssim
+
 
 def norm_minmse(gt, x, normalize_gt=True):
 	if normalize_gt:
