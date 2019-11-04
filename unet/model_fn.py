@@ -127,7 +127,7 @@ class Model(object):
 		checkpoint_file = os.path.join(self.opts.model_dir, 'model.ckpt-'+str(self.opts.checkpoint_num))
 
 		resizer = PadAndCropResizer()
-		cropper = (PatchPredictor(self.opts.patch_size, self.opts.overlap, self.opts.proj_model) if 
+		cropper = (PatchPredictor(self.opts.predict_patch_size, self.opts.overlap, self.opts.proj_model) if 
 			self.opts.cropped_prediction else None)
 		normalizer = PercentileNormalizer() if self.opts.CARE_normalize else None
 		div_n = (4 if self.opts.proj_model else 2)**(self.conf_unet['depth']-1)

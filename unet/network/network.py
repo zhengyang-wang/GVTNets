@@ -118,7 +118,8 @@ class UNet(object):
 		penult = inputs
 		inputs = batch_norm(inputs, training, 'batch_norm_output')
 		inputs = relu(inputs, 'relu_output')
-		inputs = convolution(inputs, 1, self.out_kernel_size, 1, self.out_kernel_bias, 'out_conv')
+		inputs = convolution(inputs, 1, self.out_kernel_size, 1, self.out_kernel_bias, 
+			'out_conv' if self.out_kernel_size==1 else 'output_convolution')
 
 		return inputs, penult
 
