@@ -67,9 +67,15 @@ class Model(object):
 
 		if mode == tf.estimator.ModeKeys.TRAIN:
 			global_step = tf.train.get_or_create_global_step()
-			learning_rate = tf.train.exponential_decay(self.opts.learning_rate, global_step, 
-				self.opts.lr_decay_steps, self.opts.lr_decay_rate, True)
+			learning_rate = tf.train.exponential_decay(
+								learning_rate=self.opts.learning_rate,
+								global_step=global_step, 
+								decay_steps=self.opts.lr_decay_steps,
+								decay_rate=self.opts.lr_decay_rate,
+								staircase=True)
 			optimizer = tf.train.AdamOptimizer(
+							beta1=0.5,
+							beta2=0.999,
 							learning_rate=learning_rate)
 
 			# Batch norm requires update ops to be added as a dependency to train_op
@@ -110,11 +116,11 @@ class Model(object):
 
 	def predict(self):
 		sources, fnames = load_testing_tiff(self.opts.tiff_dataset_dir, self.opts.num_test_pairs)
-		pred_result_dir = os.path.join(self.opts.result_dir, 'checkpoint_%s' % str(self.opts.checkpoint_num))
+		pred_result_dir = os.path.join(self.opts.result_dir, 'checkpoint_%s' % self.opts.checkpoint_num)
 		if not os.path.exists(pred_result_dir):
 			os.makedirs(pred_result_dir)
 		else:
-			print('The result dir for checkpoint_num %d already exist.' % self.opts.checkpoint_num)
+			print('The result dir for checkpoint_num %s already exist.' % self.opts.checkpoint_num)
 			return 0
 
 		# Using the Winograd non-fused algorithms provides a small performance boost.
@@ -124,11 +130,11 @@ class Model(object):
 						model_fn=self._model_fn,
 						model_dir=self.opts.model_dir)
 
-		checkpoint_file = os.path.join(self.opts.model_dir, 'model.ckpt-'+str(self.opts.checkpoint_num))
+		checkpoint_file = os.path.join(self.opts.model_dir, 'model.ckpt-'+self.opts.checkpoint_num)
 
 		resizer = PadAndCropResizer()
-		cropper = (PatchPredictor(self.opts.predict_patch_size, self.opts.overlap, self.opts.proj_model) if 
-			self.opts.cropped_prediction else None)
+		cropper = PatchPredictor(self.opts.predict_patch_size, self.opts.overlap, self.opts.proj_model) if \
+					self.opts.cropped_prediction else None
 		normalizer = PercentileNormalizer() if self.opts.CARE_normalize else None
 		div_n = (4 if self.opts.proj_model else 2)**(self.conf_unet['depth']-1)
 		excludes = ([3,0], 2) if self.opts.proj_model else (3,3)
@@ -152,8 +158,8 @@ class Model(object):
 				prediction = list(prediction)[0]['pixel_values']
 
 			prediction = resizer.after(prediction, exclude=excludes[1])
-			prediction = (normalizer.after(prediction) if
-				self.opts.normalize and normalizer.do_after() else prediction)
+			prediction = normalizer.after(prediction) if \
+							self.opts.CARE_normalize and normalizer.do_after() else prediction
 			prediction = prediction[0] if self.opts.proj_model else prediction
 			path_tiff = os.path.join(pred_result_dir, 'pred_'+fnames[idx])
 			tifffile.imsave(path_tiff, prediction[..., 0])

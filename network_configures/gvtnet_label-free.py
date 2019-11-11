@@ -45,13 +45,13 @@ conf_attn_same['key_ratio'] = 1
 conf_attn_same['value_ratio'] = 1
 
 # number of heads
-conf_attn_same['num_heads'] = 2
+conf_attn_same['num_heads'] = 1
 
 # dropout rate, 0.0 means no dropout
 conf_attn_same['dropout_rate'] = 0.0
 
 # whether to use softmax on attention_weights
-conf_attn_same['use_softmax'] = True
+conf_attn_same['use_softmax'] = False
 
 # whether to use bias terms in input/output transformations
 conf_attn_same['use_bias'] = True
@@ -144,11 +144,8 @@ conf_unet['upsampling'] = ['transposed_convolution', 'transposed_convolution', '
 conf_unet['skip_method'] = 'add'
 
 # Set the output layer
-# I did not implement the output layer since different tasks have different output layers.
-# You may simply use this framework to generate the main U-Net and add your own output layer.
-# Note that, since we use the pre-activation, you must add a batchnorm+relu between the main
-# U-Net and your output layer.
-
+conf_unet['out_kernel_size'] = 3
+conf_unet['out_kernel_bias'] = True
 
 # Check
 assert conf_unet['dimension'] in ['2D', '3D']

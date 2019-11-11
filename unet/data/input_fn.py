@@ -188,7 +188,7 @@ def input_fn_tfrecord(opts, shuffle=True):
 	# dataset for the appropriate number of epochs.
 	dataset = dataset.repeat(opts.num_iters * opts.batch_size // opts.num_train_pairs)
 	dataset = dataset.map(decode_train, num_parallel_calls=5)
-	dataset = dataset.map(lambda x, y: crop_image_train(x, y, opts.patch_size), num_parallel_calls=5)
+	dataset = dataset.map(lambda x, y: crop_image_train(x, y, opts.train_patch_size), num_parallel_calls=5)
 	dataset = dataset.batch(opts.batch_size)
 	# Operations between the final prefetch and the get_next call to the iterator
 	# will happen synchronously during run time. We prefetch here again to

@@ -15,7 +15,7 @@ def main(_):
 	parser.add_argument('--result_dir', type=str, help='directory of resulted tiff files')
 	parser.add_argument('--model_dir', default='saved_models', help='directory to save settings and checkpoints \
 						of model during training')
-	parser.add_argument('--checkpoint_num', type=int, default=75000, help='which checkpoint is used for validation/prediction')
+	parser.add_argument('--checkpoint_num', type=str, default='75000', help='which checkpoint is used for validation/prediction')
 	# options for cropped prediction
 	parser.add_argument('--cropped_prediction', action="store_true", help='whether to crop during prediction')
 	parser.add_argument('--predict_patch_size', nargs='+', type=int, default=[128, 256, 256], help='patch size \

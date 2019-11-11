@@ -41,17 +41,16 @@ def generate_files(opts, test):
 		#	Multiple npz files where each one contains one training sample:
 		#		{'X': (n_channel, depth, height, width),
 		#		 'Y': (n_channel, depth, height, width)}
-		output_dir = os.path.join(opts.npz_dataset_dir, 'train')
-		if not os.path.exists(output_dir):
-			os.makedirs(output_dir)
+		if not os.path.exists(opts.npz_dataset_dir):
+			os.makedirs(opts.npz_dataset_dir)
 		else:
 			print('The training dataset already exists.')
-			return 0
+			sys.exit(0)
 
 		for i in range(0, opts.num_train_pairs):
 			# Here, as training data have different sizes, each training sample
 			# will be saved into a single npz file.
-			output_file = os.path.join(output_dir, 'train_{:02d}.npz'.format(i))
+			output_file = os.path.join(opts.npz_dataset_dir, 'train_{:02d}.npz'.format(i))
 			data = dataset[i]
 
 			# Add the channel dimension.
@@ -63,18 +62,17 @@ def generate_files(opts, test):
 	else:
 		# Each image for prediction is saved as signal_{index}.tiff
 		# The corresponding label, if present, is saved as target_{index}.tiff
-		output_dir = os.path.join(opts.npz_dataset_dir, 'test')
-		if not os.path.exists(output_dir):
-			os.makedirs(output_dir)
+		if not os.path.exists(opts.tiff_dataset_dir):
+			os.makedirs(opts.tiff_dataset_dir)
 		else:
 			print('The testing dataset already exists.')
-			return 0
+			sys.exit(0)
 
-		source_output_dir = os.path.join(output_dir, 'sources')
+		source_output_dir = os.path.join(opts.tiff_dataset_dir)
 		if not os.path.exists(source_output_dir):
 			os.makedirs(source_output_dir)
 
-		label_output_dir = os.path.join(output_dir, 'targets')
+		label_output_dir = os.path.join(opts.tiff_dataset_dir, 'ground_truth')
 		if not os.path.exists(label_output_dir):
 			os.makedirs(label_output_dir)
 
@@ -84,13 +82,13 @@ def generate_files(opts, test):
 
 			data = dataset[i]
 
-			path_tiff = os.path.join(source_output_dir, 'source_{:02d}.tiff'.format(i))
+			path_tiff = os.path.join(source_output_dir, 'test_image_{:02d}.tiff'.format(i))
 			if not os.path.isfile(path_tiff):
 				tifffile.imsave(path_tiff, data[0])
 				print('Saved:', path_tiff)
 
 			if len(data) == 2 and not opts.no_target:
-				path_tiff = os.path.join(label_output_dir, 'target_{:02d}.tiff'.format(i))
+				path_tiff = os.path.join(label_output_dir, 'test_image_{:02d}.tiff'.format(i))
 				if not os.path.isfile(path_tiff):
 					tifffile.imsave(path_tiff, data[1])
 					print('Saved:', path_tiff)
@@ -102,16 +100,14 @@ def main():
 	default_resizer_str = 'transforms.Resizer((1, {:f}, {:f}))'.format(factor_yx, factor_yx)
 	parser.add_argument('--csv_dataset_dir', type=str, help='directory of csv files for constructing datasets')
 	parser.add_argument('--raw_dataset_dir', type=str, help='directory of raw data files')
-	parser.add_argument('--npz_dataset_dir', type=str, help='directory of npz files')
+	parser.add_argument('--npz_dataset_dir', type=str, help='directory of npz files storing training data')
+	parser.add_argument('--tiff_dataset_dir', type=str, help='directory of tif(f) files storing testing data')
 	parser.add_argument('--num_train_pairs', type=int, default=None, help='number of pairs for training')
 	parser.add_argument('--num_test_pairs', type=int, default=None, help='number of pairs for testing')
 	parser.add_argument('--no_target', action='store_true', help='set to not save target image')
 	parser.add_argument('--transform_signal', nargs='+', default=['transforms.normalize', default_resizer_str], help='list of transforms on Dataset signal')
 	parser.add_argument('--transform_target', nargs='+', default=['transforms.normalize', default_resizer_str], help='list of transforms on Dataset target')
 	opts = parser.parse_args()
-
-	if not os.path.exists(opts.npz_dataset_dir):
-		os.makedirs(opts.npz_dataset_dir)
 
 	if opts.num_train_pairs != None:
 		generate_files(opts, test=False)
