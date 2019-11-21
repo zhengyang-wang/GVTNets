@@ -91,6 +91,8 @@ them into npz file(s). The npz file(s) can be either A single npz file containin
       
       {'X': (n_channel, (depth,) height, width),
        'Y': (n_channel, (depth,) height, width)}
+      
+    If your data contains uncropped images with different sizes, use the later data structure.
        
 - To train with the dataset: 
 
