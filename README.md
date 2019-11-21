@@ -36,9 +36,9 @@ conda deactivate
 
 We prepared the pre-written scripts for the training and testing on these datasets.
 
-- Dataset download
-    - **CARE**: [placeholder](https://github.com/zhengyang-wang/Image2Image)
-    - **Label-free**: [placeholder](https://github.com/zhengyang-wang/Image2Image)
+- To download the datasets
+    - **CARE**: [https://publications.mpi-cbg.de/publications-sites/7207/](https://publications.mpi-cbg.de/publications-sites/7207/)
+    - **Label-free**: [https://downloads.allencell.org/publication-data/label-free-prediction/index.html](https://downloads.allencell.org/publication-data/label-free-prediction/index.html)
     
     Then extract the compressed files.
 
