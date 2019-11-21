@@ -48,6 +48,8 @@ We prepared the pre-written scripts for the training and testing on these datase
     
     Then extract the compressed files.
 
+#### For CARE Datasets
+
 - To modify and run the training scripts
 
     1. Modify ``NPZ_DATASET_DIR`` in the training scripts by changing the path to where you put the
@@ -69,7 +71,7 @@ We prepared the pre-written scripts for the training and testing on these datase
     specify ``NUM_TEST_PAIRS`` accordingly.
     2. Specify the ``MODEL_DIR`` (if you changed it in training scripts) and the ``CHECKPOINT_NUM``. If
     you would like to use the pre-trained model provided by us, you can modify the ``CHECKPOINT_NUM`` line
-    into ``CHECKPOINT_NUM="best"``.
+    into ``CHECKPOINT_NUM="pretrained"``.
     3. If you want to specify the directory to output the images, or the predict settings such as GPU id, 
     whether to crop the input images (you will need to do so when your GPU does not have enough memory, 
     they will be assembled back as a whole after the prediction), 
@@ -82,6 +84,8 @@ We prepared the pre-written scripts for the training and testing on these datase
     ```
     scripts/evaluation_script_name.sh
     ```
+    
+#### For Label-free Datasets
 
 
 ### To train and inference/test with your own datasets.
