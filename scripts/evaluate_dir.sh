@@ -2,7 +2,7 @@
 
 DATASET=${1:-dna}
 CHECKPOINT_NUM=${3:-75000}
-MODEL_NAME=${2:-"model9"}
+MODEL_NAME=${2:-model9}
 SAVE_DIR="/mnt/dive/shared/zhengyang/label-free/${DATASET}"
 PREDICTION_DIR="${SAVE_DIR}/results/${MODEL_NAME}/checkpoint_${CHECKPOINT_NUM}/"
 TARGET_DIR="${SAVE_DIR}/datasets/test/ground_truth"

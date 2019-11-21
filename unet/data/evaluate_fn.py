@@ -41,7 +41,7 @@ def evaluate_function(prediction_file=None, target_file=None, prediction_dir=Non
 			pickle.dump([stats_all, stats_per_im], open(stats_file, "wb"))
 			print(stats_all[['r','ssim','nrmse','psnr']])
 		else:
-			print(stats_all['r','ssim','nrmse','psnr'])
+			print(stats_all)
 
 def eval_images(path_targets, path_preds):
 	log_per_im = list()

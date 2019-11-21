@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
-PREDICTION_FILE="/mnt/dive/shared/zhengyang/label-free/fibrillarin/results/model1/checkpoint_99999/patch[0, 0, 0]_step[0, 0, 0]/prediction_00.tiff"
-TARGET_FILE="/mnt/dive/shared/zhengyang/label-free/fibrillarin/results/target_00.tiff"
+PREDICTION_FILE=${1:-prediction.tiff} # Provide the full path to the prediction tif/tiff file.
+TARGET_FILE=${2:-target.tiff} # Provide the full path to the target tif/tiff file.
 
 # predict
 python evaluate.py \
