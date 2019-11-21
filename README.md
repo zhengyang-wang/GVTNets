@@ -27,6 +27,12 @@ At each time, to begin to use the tool, run the following command to activate th
 ```
 conda activate gvtnet
 ```
+or
+```
+source activate gvtnet
+```
+whichever works for you.
+
 After using the tool, you can run the following command to exit the virtual environment.
 ```
 conda deactivate
