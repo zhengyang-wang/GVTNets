@@ -1,18 +1,26 @@
 #!/bin/bash -x
 
-DATASET=${1:-dna}
-GPU_ID=${2:-4}
-CSV_DATASET_DIR="datasets/label-free/csvs/${DATASET}/"
+# Provide the full path to the folder that stores the 13 raw datasets.
 RAW_DATASET_DIR="/mnt/dive/shared/yaochen.xie/Label_free_prediction"
-NPZ_DATASET_DIR="/mnt/dive/shared/zhengyang/label-free/${DATASET}/datasets/train"
+# Provide the dataset name.
+DATASET=${1:-dna}
+# Provide the GPU id. Use -1 for CPU only.
+GPU_ID=${2:-4}
+# Provide the name of your model.
+MODEL_NAME=${3:-"gvtnet_label-free"}
+# Provide the full path to the main folder that saves checkpoints and results.
+SAVE_DIR="/mnt/dive/shared/zhengyang/label-free/${DATASET}"
+
+CSV_DATASET_DIR="datasets/label-free/csvs/${DATASET}/"
+NPZ_DATASET_DIR="${SAVE_DIR}/datasets/train"
+RESULT_DIR="${SAVE_DIR}/results/${MODEL_NAME}"
+MODEL_DIR="${SAVE_DIR}/models/${MODEL_NAME}"
 NUM_TRAIN_PAIRS=30
 BATCH_SIZE=16
 LOSS_TYPE="MSE"
 LEARNING_RATE=0.001
 NUM_ITERS=100000
 SAVE_CHECKPOINTS_ITER=5000
-MODEL_NAME=${3:-"gvtnet_label-free"}
-MODEL_DIR="/mnt/dive/shared/zhengyang/label-free/${DATASET}/models/${MODEL_NAME}"
 TRAIN_PATCH_SIZE_D=32
 TRAIN_PATCH_SIZE_H=64
 TRAIN_PATCH_SIZE_W=64

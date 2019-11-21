@@ -1,15 +1,23 @@
 #!/bin/bash -x
 
-DATASET=${1:-dna}
-GPU_ID=${2:-4}
-CSV_DATASET_DIR="datasets/label-free/csvs/${DATASET}/"
+# Provide the full path to the folder that stores the 13 raw datasets.
 RAW_DATASET_DIR="/mnt/dive/shared/yaochen.xie/Label_free_prediction"
-TIFF_DATASET_DIR="/mnt/dive/shared/zhengyang/label-free/${DATASET}/datasets/test"
-NUM_TEST_PAIRS=20
+# Provide the dataset name.
+DATASET=${1:-dna}
+# Provide the GPU id. Use -1 for CPU only.
+GPU_ID=${2:-4}
+# Provide the name of your model.
 MODEL_NAME=${3:-"gvtnet_label-free"}
-CHECKPOINT_NUM=${4:-5000}
-RESULT_DIR="/mnt/dive/shared/zhengyang/label-free/${DATASET}/results/${MODEL_NAME}"
-MODEL_DIR="/mnt/dive/shared/zhengyang/label-free/${DATASET}/models/${MODEL_NAME}"
+# Provide the number of saved checkpoint. Use 'pretrained' for provided pretrained checkpoint.
+CHECKPOINT_NUM=${4:-75000}
+# Provide the full path to the main folder that saves checkpoints and results.
+SAVE_DIR="/mnt/dive/shared/zhengyang/label-free/${DATASET}"
+
+CSV_DATASET_DIR="datasets/label-free/csvs/${DATASET}/"
+TIFF_DATASET_DIR="${SAVE_DIR}/datasets/test"
+RESULT_DIR="${SAVE_DIR}/results/${MODEL_NAME}"
+MODEL_DIR="${SAVE_DIR}/models/${MODEL_NAME}"
+NUM_TEST_PAIRS=20
 
 # Pre-process the training data and save them into the npz format.
 python datasets/label-free/generate_npz_or_tiff.py \
