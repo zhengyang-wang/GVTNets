@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
-DATASET=${1:-dna}
-CHECKPOINT_NUM=${3:-75000}
+DATASET=${1:-dna} # Provide the dataset name.
+CHECKPOINT_NUM=${3:-75000} # Provide the 
 MODEL_NAME=${2:-model9}
 SAVE_DIR="/mnt/dive/shared/zhengyang/label-free/${DATASET}"
 PREDICTION_DIR="${SAVE_DIR}/results/${MODEL_NAME}/checkpoint_${CHECKPOINT_NUM}/"
