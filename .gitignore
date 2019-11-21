@@ -5,3 +5,5 @@ unet/network/.DS_Store
 unet/network/__pycache__/
 unet/data/__pycache__/
 datasets/label-free/__pycache__/
+datasets/label-free/aicsimage/__pycache__/
+datasets/label-free/aicsimage/io/__pycache__/
