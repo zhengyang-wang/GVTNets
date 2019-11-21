@@ -17,6 +17,7 @@ To set up the environment and install the tool, run the following command in the
 ```
 git clone https://github.com/zhengyang-wang/Image2Image.git
 cd Image2Image
+chmod +x scripts/*.sh
 conda env create -f gvtnet.yml
 ```
 
@@ -98,6 +99,18 @@ them into npz file(s). The npz file(s) can be either A single npz file containin
      You will need to specify the arguments, such as npz_dataset_dir, gpu_id. You can refer to the scripts for the 
      example argument settings. You can also tune the model parameters by modifying *network_configure.py*.
      
+     Explaination to some arguments:
+     ```
+     --already_cropped: include it only when training images are already cropped to patches. If not, 
+                        you need to specify the --train_patch_size and the image will be automatically 
+                        cropped.
+     --proj_model: whether to use ProjectionNet to project 3D images to 2D, only used in 3D-to-2D 
+                   transform task, e.g. CARE Flywings projection'.
+     --offset: whether to add inputs to the outputs (so that the output is considered as an offset of 
+               input image). It is applied in CARE models.
+     --probalistic: whether to train with probalistic loss, used in CARE models.
+     ```
+     
 - To predict and evaluate the dataset: the prediction and evaluation accept the tif/tiff files as inputs.
 
       python predict.py [--args]
@@ -109,5 +122,12 @@ them into npz file(s). The npz file(s) can be either A single npz file containin
      You will need to specify the arguments for prediction and evaluation respectively, such as tiff_dataset_dir, 
      gpu_id. You can refer to the scripts for the example argument settings.
      
+     Explaination to some arguments:
+     ```
+     --cropped_prediction: suggested when having a GPU memory problem. The input images will be processed
+                           patch by patch and assembled back together. If included, you also need to
+                           specify the --predict_patch_size and --overlap.
+     --CARE_normalize: include it when you need to use the percentile normalization used in CARE.
+     ```
     
 
