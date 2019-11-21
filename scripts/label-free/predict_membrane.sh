@@ -1,46 +1,40 @@
 #!/bin/bash -x
 
 DATASET="membrane_caax_63x"
-CSV_DATASET_DIR="csvs/${DATASET}/"
+# Provide the full path to the folder that stores the 13 raw datasets.
 RAW_DATASET_DIR="/mnt/dive/shared/yaochen.xie/Label_free_prediction"
+# Provide the GPU id. Use -1 for CPU only.
+GPU_ID=${1:-4}
+# Provide the name of your model.
+MODEL_NAME=${2:-"gvtnet_label-free"}
+# Provide the number of saved checkpoint. Use 'pretrained' for provided pretrained checkpoint.
+CHECKPOINT_NUM=${3:-75000}
+# Provide the full path to the main folder that saves checkpoints and results.
 SAVE_DIR="/mnt/dive/shared/zhengyang/label-free/${DATASET}"
-TF_DATASET_DIR="${SAVE_DIR}/tfrecord"
-NUM_TEST_PAIRS=18
-TEST_PATCH_SIZE_D=0
-TEST_PATCH_SIZE_H=0
-TEST_PATCH_SIZE_W=0
-TEST_STEP_SIZE_D=0
-TEST_STEP_SIZE_H=0
-TEST_STEP_SIZE_W=0
-RESULT_DIR="${SAVE_DIR}/results"
-BATCH_SIZE=1
-CHECKPOINT_NUM=${3:-100000}
-MODEL_NAME=${2:-"model_unet"}
+
+CSV_DATASET_DIR="datasets/label-free/csvs/${DATASET}/"
+TIFF_DATASET_DIR="${SAVE_DIR}/datasets/test"
+RESULT_DIR="${SAVE_DIR}/results/${MODEL_NAME}"
 MODEL_DIR="${SAVE_DIR}/models/${MODEL_NAME}"
-GPU_ID=${1:-0}
+NUM_TEST_PAIRS=18
 
-cp network_configures/${MODEL_NAME}.py network_configure.py
-
-# generate tfrecord files
-python unet/data/generate_tfrecord.py \
-		--raw_dataset_dir ${RAW_DATASET_DIR} \
+# Pre-process the training data and save them into the npz format.
+python datasets/label-free/generate_npz_or_tiff.py \
 		--csv_dataset_dir ${CSV_DATASET_DIR} \
-		--tf_dataset_dir ${TF_DATASET_DIR} \
+		--raw_dataset_dir ${RAW_DATASET_DIR} \
+		--tiff_dataset_dir ${TIFF_DATASET_DIR} \
 		--num_test_pairs ${NUM_TEST_PAIRS} \
-		--test_patch_size ${TEST_PATCH_SIZE_D} ${TEST_PATCH_SIZE_H} ${TEST_PATCH_SIZE_W} \
-		--test_step_size ${TEST_STEP_SIZE_D} ${TEST_STEP_SIZE_H} ${TEST_STEP_SIZE_W} \
-		--result_dir ${RESULT_DIR} \
 		--transform_signal transforms.normalize "transforms.Resizer((1, 0.29655, 0.29655))" \
 		--transform_target transforms.normalize "transforms.Resizer((1, 0.29655, 0.29655))"
 
-# predict
+# Load the network configures according to MODEL_NAME	
+cp network_configures/${MODEL_NAME}.py network_configure.py
+
+# Predict using trained GVTNet
 python predict.py \
-		--tf_dataset_dir ${TF_DATASET_DIR} \
+		--gpu_id ${GPU_ID} \
+		--tiff_dataset_dir ${TIFF_DATASET_DIR} \
 		--num_test_pairs ${NUM_TEST_PAIRS} \
-		--test_patch_size ${TEST_PATCH_SIZE_D} ${TEST_PATCH_SIZE_H} ${TEST_PATCH_SIZE_W} \
-		--test_step_size ${TEST_STEP_SIZE_D} ${TEST_STEP_SIZE_H} ${TEST_STEP_SIZE_W} \
 		--result_dir ${RESULT_DIR} \
-		--batch_size ${BATCH_SIZE} \
 		--model_dir ${MODEL_DIR} \
-		--checkpoint_num ${CHECKPOINT_NUM} \
-		--gpu_id ${GPU_ID}
+		--checkpoint_num ${CHECKPOINT_NUM}
