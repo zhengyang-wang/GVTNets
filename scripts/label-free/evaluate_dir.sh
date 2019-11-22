@@ -6,8 +6,8 @@ DATASET=${1:-dna}
 CHECKPOINT_NUM=${3:-75000}
 # Provide the name of your model.
 MODEL_NAME=${2:-gvtnet_label-free}
-# Provide the full path to the main folder that saves checkpoints and results.
-SAVE_DIR="/mnt/dive/shared/zhengyang/label-free/${DATASET}"
+# Provide the path to the main folder that saves transformed datasets, checkpoints and results.
+SAVE_DIR="save_dir/label-free/${DATASET}"
 
 PREDICTION_DIR="${SAVE_DIR}/results/${MODEL_NAME}/checkpoint_${CHECKPOINT_NUM}/"
 TARGET_DIR="${SAVE_DIR}/datasets/test/ground_truth"

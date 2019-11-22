@@ -1,9 +1,9 @@
 #!/bin/bash -x
 
 # Provide the full path to the prediction tif/tiff file.
-PREDICTION_FILE=${1:-/mnt/dive/shared/zhengyang/label-free/dna/results/gvtnet_label-free/checkpoint_pretrained/prediction.tiff}
+PREDICTION_FILE=${1:-save_dir/label-free/dna/results/gvtnet_label-free/checkpoint_pretrained/prediction.tiff}
 # Provide the full path to the target tif/tiff file.
-TARGET_FILE=${2:-/mnt/dive/shared/zhengyang/label-free/dna/datasets/test/ground_truth/target.tiff}
+TARGET_FILE=${2:-save_dir/label-free/dna/datasets/test/ground_truth/target.tiff}
 
 # predict
 python evaluate.py \

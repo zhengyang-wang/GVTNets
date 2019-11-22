@@ -10,8 +10,8 @@ GPU_ID=${2:-4}
 MODEL_NAME=${3:-"gvtnet_label-free"}
 # Provide the number of saved checkpoint. Use 'pretrained' for provided pretrained checkpoint.
 CHECKPOINT_NUM=${4:-75000}
-# Provide the full path to the main folder that saves checkpoints and results.
-SAVE_DIR="/mnt/dive/shared/zhengyang/label-free/${DATASET}"
+# Provide the path to the main folder that saves transformed datasets, checkpoints and results.
+SAVE_DIR="save_dir/label-free/${DATASET}"
 
 CSV_DATASET_DIR="datasets/label-free/csvs/${DATASET}/"
 TIFF_DATASET_DIR="${SAVE_DIR}/datasets/test"
