@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 
-"""This is the configuration file for basic layers and modules.
+"""This is the configuration file.
 """
 
 
@@ -13,10 +13,10 @@ conf_basic_ops = dict()
 
 # kernel_initializer for convolutions and transposed convolutions
 # If None, the default initializer is the Glorot (Xavier) normal initializer.
-conf_basic_ops['kernel_initializer'] = None # tf.truncated_normal_initializer()
+conf_basic_ops['kernel_initializer'] = None
 
 # whether to use batch normalization
-conf_basic_ops['use_batch_norm'] = True
+conf_basic_ops['use_batch_norm'] = False
 
 # momentum for batch normalization
 # default 0.99
@@ -45,7 +45,7 @@ conf_attn_same['key_ratio'] = 1
 conf_attn_same['value_ratio'] = 1
 
 # number of heads
-conf_attn_same['num_heads'] = 1
+conf_attn_same['num_heads'] = 2
 
 # dropout rate, 0.0 means no dropout
 conf_attn_same['dropout_rate'] = 0.0
@@ -61,9 +61,9 @@ conf_attn_up = dict()
 
 conf_attn_up['key_ratio'] = 1
 conf_attn_up['value_ratio'] = 1
-conf_attn_up['num_heads'] = 1
-conf_attn_up['dropout_rate'] = 0.0
-conf_attn_up['use_softmax'] = True
+conf_attn_up['num_heads'] = 2
+conf_attn_up['dropout_rate'] = 0
+conf_attn_up['use_softmax'] = False
 conf_attn_up['use_bias'] = True
 
 # Set the attention in down_gto
@@ -71,9 +71,9 @@ conf_attn_down = dict()
 
 conf_attn_down['key_ratio'] = 1
 conf_attn_down['value_ratio'] = 1
-conf_attn_down['num_heads'] = 1
+conf_attn_down['num_heads'] = 2
 conf_attn_down['dropout_rate'] = 0.0
-conf_attn_down['use_softmax'] = True
+conf_attn_down['use_softmax'] = False
 conf_attn_down['use_bias'] = True
 
 ################################################################################
@@ -108,7 +108,7 @@ The combination method could be 'add' or 'concat'.
 """
 
 # Set the depth and dimension.
-conf_unet['depth'] = 4
+conf_unet['depth'] = 3
 conf_unet['dimension'] = '3D' # '2D' or '3D'
 
 # Set the output_filters for first_convolution and encoding_block_1 (same).
@@ -118,12 +118,12 @@ conf_unet['first_output_filters'] = 32
 # It is an integer list whose length equals to depth.
 # The first entry should be positive since encoding_block_1 = one or more res_block.
 # The last entry should be zero since encoding_block_depth (down) = downsampling.
-conf_unet['encoding_block_sizes'] = [1, 0, 0, 0]
+conf_unet['encoding_block_sizes'] = [1, 1, 0]
 
 # Set the downsampling methods for each encoding_block_i, i = 2, 3, ..., depth.
 # It is an string list whose length equals to depth-1.
 # String options: 'down_gto_v1', 'down_gto_v2', 'down_res_block', 'convolution'
-conf_unet['downsampling'] = ['down_res_block', 'down_res_block', 'down_res_block']
+conf_unet['downsampling'] = ['convolution', 'convolution']
 
 # Set the bottom block, i.e., a string list telling the combination of same_gto and res_block.
 # For example, ['same_gto', 'res_block'] means a same_gto followed by a res_block.
@@ -132,20 +132,20 @@ conf_unet['bottom_block'] = ['same_gto']
 
 # Set the decoding block sizes, i.e., number of res_block in decoding_block_j, j = depth-1, depth-2, ..., 1.
 # It is an integer list whose length equals to depth-1.
-conf_unet['decoding_block_sizes'] = [1, 1, 1]
+conf_unet['decoding_block_sizes'] = [1, 1]
 
 # Set the upsampling methods for each decoding_block_j, j = depth-1, depth-2, ..., 1.
 # It is an string list whose length equals to depth-1.
 # String options: 'up_gto_v1', 'up_gto_v2', 'transposed_convolution'
-conf_unet['upsampling'] = ['transposed_convolution', 'transposed_convolution', 'transposed_convolution']
+conf_unet['upsampling'] = ['up_gto_v2', 'up_gto_v2']
 
 # Set the combination method for identity skip connections
 # String options: 'add', 'concat'
-conf_unet['skip_method'] = 'add'
+conf_unet['skip_method'] = 'concat'
 
 # Set the output layer
-conf_unet['out_kernel_size'] = 3
-conf_unet['out_kernel_bias'] = True
+conf_unet['out_kernel_size'] = 1
+conf_unet['out_kernel_bias'] = False
 
 # Check
 assert conf_unet['dimension'] in ['2D', '3D']

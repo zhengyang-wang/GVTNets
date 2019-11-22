@@ -1,6 +1,8 @@
 #!/bin/bash -x
 
-# Provide the full path to the folder that stores the 13 raw datasets.
+# Provide the full path to the folder that stores the data downloaded from
+# https://downloads.allencell.org/publication-data/label-free-prediction/index.html
+# RAW_DATASET_DIR should have 13 sub-folders corresponding to 13 datasets.
 RAW_DATASET_DIR="/mnt/dive/shared/yaochen.xie/Label_free_prediction"
 # Provide the dataset name.
 DATASET=${1:-dna}

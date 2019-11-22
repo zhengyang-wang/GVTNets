@@ -13,7 +13,8 @@ def main(_):
 	parser.add_argument('--npz_dataset_dir', type=str, help='directory of npz files corresponding to training data')
 	parser.add_argument('--already_cropped', action="store_true", help='whether training data are already cropped')
 	parser.add_argument('--train_patch_size', nargs='+', type=int, help='size of training patches after cropping: [(D,) H, W]')
-	parser.add_argument('--num_train_pairs', type=int, default=30, help='number of pairs for training')
+	parser.add_argument('--num_train_pairs', type=int, default=30, help='number of pairs for training. \
+																		Only used when --opts.already_cropped is NOT set.')
 	parser.add_argument('--save_tfrecords', action="store_true", help='whether to save and use tfrecord files for faster I/O during training')
 	parser.add_argument('--tf_dataset_dir', type=str, help='directory of tfrecord files when --save_tfrecords')
 	# training settings

@@ -1,10 +1,12 @@
 #!/bin/bash -x
 
 DATASET="dic_lamin_b1"
-# Provide the full path to the folder that stores the 13 raw datasets.
+# Provide the full path to the folder that stores the data downloaded from
+# https://downloads.allencell.org/publication-data/label-free-prediction/index.html
+# RAW_DATASET_DIR should have 13 sub-folders corresponding to 13 datasets.
 RAW_DATASET_DIR="/mnt/dive/shared/yaochen.xie/Label_free_prediction"
 # Provide the GPU id. Use -1 for CPU only.
-GPU_ID=${1:-4}
+GPU_ID=${1:--1}
 # Provide the name of your model. Use 'gvtnet_label-free_pretrained' for provided pretrained model.
 MODEL_NAME=${3:-"gvtnet_label-free"}
 # Provide the number of saved checkpoint. Use 'pretrained' for provided pretrained model.

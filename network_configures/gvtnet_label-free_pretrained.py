@@ -13,7 +13,7 @@ conf_basic_ops = dict()
 
 # kernel_initializer for convolutions and transposed convolutions
 # If None, the default initializer is the Glorot (Xavier) normal initializer.
-conf_basic_ops['kernel_initializer'] = None # tf.truncated_normal_initializer()
+conf_basic_ops['kernel_initializer'] = None
 
 # whether to use batch normalization
 conf_basic_ops['use_batch_norm'] = True
