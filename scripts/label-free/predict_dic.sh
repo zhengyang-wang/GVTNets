@@ -5,9 +5,9 @@ DATASET="dic_lamin_b1"
 RAW_DATASET_DIR="/mnt/dive/shared/yaochen.xie/Label_free_prediction"
 # Provide the GPU id. Use -1 for CPU only.
 GPU_ID=${1:-4}
-# Provide the name of your model.
-MODEL_NAME=${2:-"gvtnet_label-free"}
-# Provide the number of saved checkpoint. Use 'pretrained' for provided pretrained checkpoint.
+# Provide the name of your model. Use 'gvtnet_label-free_pretrained' for provided pretrained model.
+MODEL_NAME=${3:-"gvtnet_label-free"}
+# Provide the number of saved checkpoint. Use 'pretrained' for provided pretrained model.
 CHECKPOINT_NUM=${3:-75000}
 # Provide the path to the main folder that saves transformed datasets, checkpoints and results.
 SAVE_DIR="save_dir/label-free/${DATASET}"
