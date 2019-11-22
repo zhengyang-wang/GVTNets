@@ -8,30 +8,27 @@
 
 ![tasks](./doc/Tasks.jpg)
 
-This is the implementation of the GVTNets proposed in our paper ***Global Voxel Transformer Networks: 
-A Deep Learning Tool for Augmented Microscopy*** with Python v3.6 and TensorFlow v1.10 or higher.
+## System Requirements
 
-## System Requirement
+We highly recommend using the Linux operating system. Using an nVIDIA GPU with >=11GB memory is highly recommended, although this tool can be used with CPU only.
 
-Though this tool can be used with only CPU, we highly recommend using on GPU(s) with 10GB memory or more. 
-Also, it is recommended to use the tool on Linux. Other operating systems are not thoroughly tested.
+We used Ubuntu 16.04.6 LTS (GNU/Linux 4.4.0-141-generic x86_64)) and an nVIDIA GeForce RTX 2080 Ti GPU with nVIDIA driver version 430.50 and CUDA version 10.1.
 
 ## Installation
 
-We highly recommend the users to [install Anaconda](https://www.anaconda.com/distribution/) for a simple 
-environment setup and installation.
+### Environment setup
 
-To set up the environment and install the tool, run the following command in the shell.
+- We highly recommend installing [Anaconda](https://www.anaconda.com/distribution/) for a simple environment setup and installation.
+- Download the code:
 ```
 git clone https://github.com/zhengyang-wang/Image2Image.git
 cd Image2Image
-chmod +x scripts/*.sh
+```
+- Create a virtual environment with required packages:
+```
 conda env create -f gvtnet.yml
 ```
-
-## Usage
-
-At each time, to begin to use the tool, run the following command to activate the virtual environment.
+- Activate the virtual environment:
 ```
 conda activate gvtnet
 ```
@@ -39,12 +36,7 @@ or
 ```
 source activate gvtnet
 ```
-whichever works for you.
-
-After using the tool, you can run the following command to exit the virtual environment.
-```
-conda deactivate
-```
+Choose whichever works for you.
 
 ### To train and inference/test on the *Label-free* Datasets and the *CARE* Datasets
 
