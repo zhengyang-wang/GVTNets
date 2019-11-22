@@ -20,7 +20,7 @@ RESULT_DIR="${SAVE_DIR}/results/${MODEL_NAME}"
 MODEL_DIR="${SAVE_DIR}/models/${MODEL_NAME}"
 NUM_TEST_PAIRS=10
 
-# Pre-process the training data and save them into the npz format.
+# Pre-process the testing data and save them into the tiff format.
 python datasets/label-free/generate_npz_or_tiff.py \
 		--csv_dataset_dir ${CSV_DATASET_DIR} \
 		--raw_dataset_dir ${RAW_DATASET_DIR} \
