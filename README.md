@@ -2,7 +2,7 @@
 
 ![gvtnets](./doc/GVTNets.jpg)
 
-![tasks](./results/Tasks.jpg)
+![tasks](./doc/Tasks.jpg)
 
 This is the implementation of the GVTNets proposed in our paper ***Global Voxel Transformer Networks: 
 A Deep Learning Tool for Augmented Microscopy*** with Python v3.6 and TensorFlow v1.10 or higher.
