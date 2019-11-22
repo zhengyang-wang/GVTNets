@@ -38,6 +38,18 @@ source activate gvtnet
 ```
 Choose whichever works for you.
 
+## Usage
+
+### Label-free prediction of 3D fluorescence images from transmitted-light microscopy
+
+- Download the [label-free datasets](https://downloads.allencell.org/publication-data/label-free-prediction/index.html)
+
+- 
+
+### Content-aware 3D image denoising
+
+### Content-aware 3D to 2D image projection
+
 ### To train and inference/test on the *Label-free* Datasets and the *CARE* Datasets
 
 We prepared the pre-written scripts for the training and testing on these datasets.
