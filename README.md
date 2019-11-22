@@ -1,4 +1,5 @@
-# Global Voxel Transformer Networks: A Deep Learning Tool for Augmented Microscopy
+# Global Voxel Transformer Networks
+## A Deep Learning Tool for Augmented Microscopy
 
 ![gvtnets](./doc/GVTNets.jpg)
 
