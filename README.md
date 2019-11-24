@@ -185,74 +185,60 @@ or
 
 ---
 
->**Example:**
->>If you want to train a GVTNet called `your-gvtnet` on `beta_actin` using the GPU #1, run:
->>```
->>./scripts/label-free/train.sh beta_actin 1 your-gvtnet
->>```
->>After training, you will find:
->>- Transformed datasets are saved under `save_dir/label-free/beta_actin/datasets/`. This process will only be performed for the first run.
->>- The content in `network_configure.py` is saved as `network_configures/your-gvtnet.py`.
->>- Model checkpoints are saved under `save_dir/label-free/beta_actin/models/your-gvtnet/`.
 >**Note**: Always give a different `model_name` when you use a different `network_configure.py`. This tool will used `model_name` to track different network configures.
 
 ---
 
 #### Prediction
 
+
+- Predict the testing set using saved model checkpoints:
+```
+./scripts/care_denoising/predict_[Planaria|Tribolium].sh [condition] [gpu_id] [model_name] [checkpoint_num]
+```
+or
+```
+./scripts/care_projection/predict_Flywing.sh [condition] [gpu_id] [model_name] [checkpoint_num]
+```
+
+---
+
+>**Note**: If your GPU memory is limited, set `gpu_id` to `-1` for CPU prediction.
+
+---
+
 #### Evaluation
+
+- Evaluate the prediction on the testing set for your saved model checkpoints:
+```
+./scripts/care_denoising/evaluate_[Planaria|Tribolium].sh [condition] [model_name] [checkpoint_num]
+```
+or
+```
+./scripts/care_projection/evaluate_Flywing.sh [condition] [model_name] [checkpoint_num]
+```
 
 #### Use provided pretrained models for reproduction of results in our paper
 
-### To train and inference/test on the *Label-free* Datasets and the *CARE* Datasets
+- Make predictions:
+```
+./scripts/care_denoising/predict_[Planaria|Tribolium].sh [condition] [gpu_id] gvtnet_care_pretrained pretrained
+```
+or
+```
+./scripts/care_projection/predict_Flywing.sh [condition] [gpu_id] gvtnet_care_pretrained pretrained
+```
 
-We prepared the pre-written scripts for the training and testing on these datasets.
+- Evaluate the results:
+```
+./scripts/care_denoising/evaluate_[Planaria|Tribolium].sh [condition] gvtnet_care_pretrained pretrained
+```
+or
+```
+./scripts/care_projection/evaluate_Flywing.sh [condition] gvtnet_care_pretrained pretrained
+```
 
-- To download the datasets
-    - **CARE**: [https://publications.mpi-cbg.de/publications-sites/7207/](https://publications.mpi-cbg.de/publications-sites/7207/)
-    - **Label-free**: [https://downloads.allencell.org/publication-data/label-free-prediction/index.html](https://downloads.allencell.org/publication-data/label-free-prediction/index.html)
-    
-    Then extract the compressed files.
-
-#### For CARE Datasets
-
-- To modify and run the training scripts
-
-    1. Modify ``NPZ_DATASET_DIR`` in the training scripts by changing the path to where you put the
-    downloaded and extracted training datasets. For **CARE**, there should be the file named ``data_label.npz``
-    under the path you specify.
-    2. If you want to specify the directory where the trained model will be saved, or the training setting
-    , such as the learning rate, you can modify them accordingly in the script file.
-    3. Run the scripts using the command
-    ```
-    scripts/training_script_name.sh
-    ```
-    
-- To modify and run the predicting scripts
-
-    1. Modify ``TIFF_DATASET_DIR`` in the predicting scripts by changing the path to where you put the
-    downloaded test images. The path should contain one or more ``.tif/.tiff`` files that you
-    want to predict from or test on. The number of such ``.tif/.tiff`` files are specified in
-    ``NUM_TEST_PAIRS``. If you change the number of the files or use other test images, you will need to
-    specify ``NUM_TEST_PAIRS`` accordingly.
-    2. Specify the ``MODEL_DIR`` (if you changed it in training scripts) and the ``CHECKPOINT_NUM``. If
-    you would like to use the pre-trained model provided by us, you can modify the ``CHECKPOINT_NUM`` line
-    into ``CHECKPOINT_NUM="pretrained"``.
-    3. If you want to specify the directory to output the images, or the predict settings such as GPU id, 
-    whether to crop the input images (you will need to do so when your GPU does not have enough memory, 
-    they will be assembled back as a whole after the prediction), 
-    4. Run the scripts using the command
-    ```
-    ./scripts/predicting_script_name.sh
-    ```
-
-- Run the evaluation scripts
-    ```
-    ./scripts/evaluation_script_name.sh
-    ```
-    
-#### For Label-free Datasets
-
+You will obtain the exact number reported in the supplementary of our paper.
 
 ### To train and inference/test with your own datasets.
 
