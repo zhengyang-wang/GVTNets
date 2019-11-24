@@ -2,7 +2,7 @@
 
 # Provide the dataset name.
 DATASET=${1:-dna}
-# Provide the name of your model.
+# Provide the name of your model. Use 'gvtnet_label-free_pretrained' for provided pretrained model.
 MODEL_NAME=${2:-gvtnet_label-free}
 # Provide the number of saved checkpoint. Use 'pretrained' for provided pretrained checkpoint.
 CHECKPOINT_NUM=${3:-75000}
