@@ -42,9 +42,28 @@ Choose whichever works for you.
 
 ### Label-free prediction of 3D fluorescence images from transmitted-light microscopy
 
-- Download the [label-free datasets](https://downloads.allencell.org/publication-data/label-free-prediction/index.html)
+#### Preparation
 
-- 
+- Download [label-free datasets](https://downloads.allencell.org/publication-data/label-free-prediction/index.html).
+
+- Untar all the datasets under one folder. Suppose the folder is `data/`, it should contain 13 datasets named `beta_actin`, `fibrillarin`, etc. In addition, `data/beta_actin/` should contain images only.
+
+- Give execution permission to scripts:
+```
+chmod +x ./scripts/label-free/*.sh
+```
+
+- Change `RAW_DATASET_DIR` to your folder that saves all the untarred datasets in `train.sh` and `predict.sh`.
+
+#### Training
+
+- Modify `network_configure.py` according to your design. For users who are not familiar with deep learning, simply copy the content of `network_configures/gvtnet_label-free.py` to `network_configure.py`.
+
+- Train the gvtnets:
+```
+./scripts/label-free/train.sh [dataset] [gpu_id] [model_name]
+```
+
 
 ### Content-aware 3D image denoising
 
