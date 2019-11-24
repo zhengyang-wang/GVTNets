@@ -69,13 +69,21 @@ chmod +x ./scripts/label-free/*.sh
 ./scripts/label-free/train_dic.sh [gpu_id] [model_name]
 ./scripts/label-free/train_membrane.sh [gpu_id] [model_name]
 ```
+---
 
-- Example: If you want to train a GVTNet called `your-gvtnet` on `beta_actin` using the GPU #1, run:
+**Example:**
+
+If you want to train a GVTNet called `your-gvtnet` on `beta_actin` using the GPU #1, run:
 ```
 ./scripts/label-free/train.sh beta_actin 1 your-gvtnet
 ```
-After training, you will find model checkpoints saved under `save_dir/label-free/beta_actin/models/your-gvtnet`.
+After training, you will find:
+- The content in `network_configure.py` is saved as `network_configures/your-gvtnet.py`.
+- Model checkpoints are saved under `save_dir/label-free/beta_actin/models/your-gvtnet`.
 
+**NOTE**: Always give a different `model_name` when you use a different `network_configure.py`. This tool will used `model_name` to track different network configures.
+
+---
 
 ### Content-aware 3D image denoising
 
