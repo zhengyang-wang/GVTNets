@@ -243,18 +243,18 @@ You will obtain the exact number reported in the supplementary of our paper.
 ### To train and inference/test with your own datasets.
 
 - To prepare your training dataset: (randomly) crop the training image pairs into two sets of patches and save 
-them into npz file(s). The npz file(s) can be either A single npz file containing all training data structured as:
+them into npz file(s). The npz file(s) can be either a single npz file containing all training data structured as:
 
             
       {'X': (n_sample, n_channel, (depth,) height, width),
        'Y': (n_sample, n_channel, (depth,) height, width)}
       
-    or Multiple npz files where each one contains one training sample structured as:
+    or multiple npz files where each one contains one training sample structured as:
       
       {'X': (n_channel, (depth,) height, width),
        'Y': (n_channel, (depth,) height, width)}
       
-    If your data contains uncropped images with different sizes, use the later data structure.
+    If your data contains uncropped images with different sizes, use the later data structure. Check `./datasets/label-free/generate_npz_or_tiff.py` for an example.
        
 - To train with the dataset: 
 
