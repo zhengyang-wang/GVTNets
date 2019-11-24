@@ -102,16 +102,16 @@ After training, you will find:
 
 ---
 
-**Example:**
+>**Example:**
 
-If you have trained a GVTNet called `your-gvtnet` on `beta_actin`, and want to make prediction for the testing set with the saved model checkpoints after training for `75,000` minibatch iterations, run:
-```
-./scripts/label-free/predict.sh beta_actin 1 your-gvtnet 75000
-```
-After prediction, you will find:
-- Prediction results are saved under `save_dir/label-free/beta_actin/results/your-gvtnet/checkpoint_75000/`.
+>>If you have trained a GVTNet called `your-gvtnet` on `beta_actin`, and want to make prediction for the testing set with the saved model checkpoints after training for `75,000` minibatch iterations, run:
+>>```
+>>./scripts/label-free/predict.sh beta_actin 1 your-gvtnet 75000
+>>```
+>>After prediction, you will find:
+>>- Prediction results are saved under `save_dir/label-free/beta_actin/results/your-gvtnet/checkpoint_75000/`.
 
-**Note**: If your GPU memory is limited, set `gpu_id` to `-1` for CPU prediction.
+>>**Note**: If your GPU memory is limited, set `gpu_id` to `-1` for CPU prediction.
 
 ---
 
