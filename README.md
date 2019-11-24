@@ -81,6 +81,7 @@ chmod +x ./scripts/label-free/*.sh
 >>- Transformed datasets are saved under `save_dir/label-free/beta_actin/datasets/`. This process will only be performed for the first run.
 >>- The content in `network_configure.py` is saved as `network_configures/your-gvtnet.py`.
 >>- Model checkpoints are saved under `save_dir/label-free/beta_actin/models/your-gvtnet/`.
+
 >**Note**: Always give a different `model_name` when you use a different `network_configure.py`. This tool will used `model_name` to track different network configures.
 
 ---
@@ -107,7 +108,8 @@ chmod +x ./scripts/label-free/*.sh
 >>```
 >>After prediction, you will find:
 >>- Prediction results are saved under `save_dir/label-free/beta_actin/results/your-gvtnet/checkpoint_75000/`.
->>**Note**: If your GPU memory is limited, set `gpu_id` to `-1` for CPU prediction.
+
+>**Note**: If your GPU memory is limited, set `gpu_id` to `-1` for CPU prediction.
 
 ---
 
