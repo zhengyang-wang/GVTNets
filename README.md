@@ -113,7 +113,22 @@ chmod +x ./scripts/label-free/*.sh
 
 #### Evaluation
 
-- 
+- Evaluate the prediction on the testing set for your saved model checkpoints:
+```
+./scripts/label-free/evaluate_dir.sh [dataset] [model_name] [checkpoint_num]
+```
+
+- Users can use `evaluate_file.sh` to evaluate any single prediction.
+
+---
+
+>**Example:**
+>>To evaluate the predictions made in the last example, run:
+>>```
+>>./scripts/label-free/evaluate_dir.sh beta_actin your-gvtnet 75000
+>>```
+
+---
 
 ### Content-aware 3D image denoising
 
