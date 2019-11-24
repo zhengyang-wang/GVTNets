@@ -53,18 +53,24 @@ Choose whichever works for you.
 chmod +x ./scripts/label-free/*.sh
 ```
 
-- Change `RAW_DATASET_DIR` to your folder that saves all the untarred datasets in `train.sh` and `predict.sh`.
+- Change `RAW_DATASET_DIR` in `train.sh`, `train_dic.sh`, `train_membrane.sh` and `predict.sh`, `predict_dic.sh`, `predict_membrane.sh` to your folder that saves all the untarred datasets.
 
 #### Training
 
 - Modify `network_configure.py` according to your design. For users who are not familiar with deep learning, simply copy the content of `network_configures/gvtnet_label-free.py` to `network_configure.py`.
 
-- Train the GVTNets:
+- Train the GVTNets for datasets except `dic_lamin_b1` and `membrane_caax_63x`:
 ```
 ./scripts/label-free/train.sh [dataset] [gpu_id] [model_name]
 ```
 
-For example, if you want to train a GVTNet called `your-gvtnet` on `beta_actin` using the GPU #1, run:
+- For `dic_lamin_b1` and `membrane_caax_63x`, use `train_dic.sh` and `train_membrane.sh`, respectively:
+```
+./scripts/label-free/train_dic.sh [gpu_id] [model_name]
+./scripts/label-free/train_membrane.sh [gpu_id] [model_name]
+```
+
+- Example: If you want to train a GVTNet called `your-gvtnet` on `beta_actin` using the GPU #1, run:
 ```
 ./scripts/label-free/train.sh beta_actin 1 your-gvtnet
 ```
