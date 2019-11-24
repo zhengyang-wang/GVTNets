@@ -53,7 +53,7 @@ Choose whichever works for you.
 chmod +x ./scripts/label-free/*.sh
 ```
 
-- Change `RAW_DATASET_DIR` in `train.sh`, `train_dic.sh`, `train_membrane.sh` and `predict.sh`, `predict_dic.sh`, `predict_membrane.sh` to your folder that saves all the untarred datasets.
+- Change `RAW_DATASET_DIR` in `train.sh`, `train_dic.sh`, `train_membrane.sh` and `predict.sh`, `predict_dic.sh`, `predict_membrane.sh` to the path to your folder that saves all the untarred datasets.
 
 #### Training
 
@@ -81,7 +81,7 @@ chmod +x ./scripts/label-free/*.sh
 >>- Transformed datasets are saved under `save_dir/label-free/beta_actin/datasets/`. This process will only be performed for the first run.
 >>- The content in `network_configure.py` is saved as `network_configures/your-gvtnet.py`.
 >>- Model checkpoints are saved under `save_dir/label-free/beta_actin/models/your-gvtnet/`.
->>**Note**: Always give a different `model_name` when you use a different `network_configure.py`. This tool will used `model_name` to track different network configures.
+>**Note**: Always give a different `model_name` when you use a different `network_configure.py`. This tool will used `model_name` to track different network configures.
 
 ---
 
@@ -150,9 +150,57 @@ chmod +x ./scripts/label-free/*.sh
 
 You will obtain the exact number reported in the supplementary of our paper.
 
-### Content-aware 3D image denoising
+### Content-aware 3D image denoising and 3D to 2D image projection (CARE)
 
-### Content-aware 3D to 2D image projection
+#### Preparation
+
+- Download `Denoising_Planaria.tar.gz`, `Denoising_Tribolium.tar.gz`, `Projection_Flywing.tar.gz` from [CARE datasets](https://publications.mpi-cbg.de/publications-sites/7207/).
+
+- Extract the datasets. Each should contain a `train_data` folder and a `test_data` folder.
+
+- Give execution permission to scripts:
+```
+chmod +x ./scripts/care_denoising/*.sh
+chmod +x ./scripts/care_projection/*.sh
+```
+
+- Change `NPZ_DATASET_DIR` in `train_[Planaria|Tribolium|Flywing].sh` to the path to the corresponding `train_data` folder.
+
+- Change `TEST_DATASET_DIR` in `train_[Planaria|Tribolium|Flywing].sh` to the path to the corresponding `test_data` folder.
+
+#### Training
+
+- Modify `network_configure.py` according to your design. For users who are not familiar with deep learning, simply copy the content of `network_configures/gvtnet_care.py` to `network_configure.py`.
+
+- Train the GVTNets:
+```
+./scripts/care_denoising/train_[Planaria|Tribolium].sh [gpu_id] [model_name]
+```
+or
+```
+./scripts/care_projection/train_Flywing.sh [gpu_id] [model_name]
+```
+
+---
+
+>**Example:**
+>>If you want to train a GVTNet called `your-gvtnet` on `beta_actin` using the GPU #1, run:
+>>```
+>>./scripts/label-free/train.sh beta_actin 1 your-gvtnet
+>>```
+>>After training, you will find:
+>>- Transformed datasets are saved under `save_dir/label-free/beta_actin/datasets/`. This process will only be performed for the first run.
+>>- The content in `network_configure.py` is saved as `network_configures/your-gvtnet.py`.
+>>- Model checkpoints are saved under `save_dir/label-free/beta_actin/models/your-gvtnet/`.
+>**Note**: Always give a different `model_name` when you use a different `network_configure.py`. This tool will used `model_name` to track different network configures.
+
+---
+
+#### Prediction
+
+#### Evaluation
+
+#### Use provided pretrained models for reproduction of results in our paper
 
 ### To train and inference/test on the *Label-free* Datasets and the *CARE* Datasets
 
@@ -193,12 +241,12 @@ We prepared the pre-written scripts for the training and testing on these datase
     they will be assembled back as a whole after the prediction), 
     4. Run the scripts using the command
     ```
-    scripts/predicting_script_name.sh
+    ./scripts/predicting_script_name.sh
     ```
 
 - Run the evaluation scripts
     ```
-    scripts/evaluation_script_name.sh
+    ./scripts/evaluation_script_name.sh
     ```
     
 #### For Label-free Datasets
