@@ -177,9 +177,6 @@ chmod +x ./scripts/care_projection/*.sh
 - Train the GVTNets:
 ```
 ./scripts/care_denoising/train_[Planaria|Tribolium].sh [gpu_id] [model_name]
-```
-or
-```
 ./scripts/care_projection/train_Flywing.sh [gpu_id] [model_name]
 ```
 
@@ -195,9 +192,6 @@ or
 - Predict the testing set using saved model checkpoints:
 ```
 ./scripts/care_denoising/predict_[Planaria|Tribolium].sh [condition] [gpu_id] [model_name] [checkpoint_num]
-```
-or
-```
 ./scripts/care_projection/predict_Flywing.sh [condition] [gpu_id] [model_name] [checkpoint_num]
 ```
 
@@ -212,9 +206,6 @@ or
 - Evaluate the prediction on the testing set for your saved model checkpoints:
 ```
 ./scripts/care_denoising/evaluate_[Planaria|Tribolium].sh [condition] [model_name] [checkpoint_num]
-```
-or
-```
 ./scripts/care_projection/evaluate_Flywing.sh [condition] [model_name] [checkpoint_num]
 ```
 
@@ -223,18 +214,12 @@ or
 - Make predictions:
 ```
 ./scripts/care_denoising/predict_[Planaria|Tribolium].sh [condition] [gpu_id] gvtnet_care_pretrained pretrained
-```
-or
-```
 ./scripts/care_projection/predict_Flywing.sh [condition] [gpu_id] gvtnet_care_pretrained pretrained
 ```
 
 - Evaluate the results:
 ```
 ./scripts/care_denoising/evaluate_[Planaria|Tribolium].sh [condition] gvtnet_care_pretrained pretrained
-```
-or
-```
 ./scripts/care_projection/evaluate_Flywing.sh [condition] gvtnet_care_pretrained pretrained
 ```
 
