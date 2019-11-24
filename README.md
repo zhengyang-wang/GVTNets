@@ -130,6 +130,26 @@ chmod +x ./scripts/label-free/*.sh
 
 ---
 
+#### Use provided pretrained models for reproduction of results in our paper
+
+- Make predictions for datasets except `dic_lamin_b1` and `membrane_caax_63x`:
+```
+./scripts/label-free/predict.sh [dataset] [gpu_id] gvtnet_label-free_pretrained pretrained
+```
+
+- For `dic_lamin_b1` and `membrane_caax_63x`, use `predict_dic.sh` and `predict_membrane.sh`, respectively:
+```
+./scripts/label-free/predict_dic.sh [gpu_id] gvtnet_label-free_pretrained pretrained
+./scripts/label-free/predict_membrane.sh [gpu_id] gvtnet_label-free_pretrained pretrained
+```
+
+- Evaluate the results:
+```
+./scripts/label-free/evaluate_dir.sh [dataset] gvtnet_label-free_pretrained pretrained
+```
+
+You will obtain the exact number reported in the supplementary of our paper.
+
 ### Content-aware 3D image denoising
 
 ### Content-aware 3D to 2D image projection
