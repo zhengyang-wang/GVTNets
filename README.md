@@ -72,18 +72,16 @@ chmod +x ./scripts/label-free/*.sh
 
 ---
 
-**Example:**
-
-If you want to train a GVTNet called `your-gvtnet` on `beta_actin` using the GPU #1, run:
-```
-./scripts/label-free/train.sh beta_actin 1 your-gvtnet
-```
-After training, you will find:
-- Transformed datasets are saved under `save_dir/label-free/beta_actin/datasets/`. This process will only be performed for the first run.
-- The content in `network_configure.py` is saved as `network_configures/your-gvtnet.py`.
-- Model checkpoints are saved under `save_dir/label-free/beta_actin/models/your-gvtnet/`.
-
-**Note**: Always give a different `model_name` when you use a different `network_configure.py`. This tool will used `model_name` to track different network configures.
+>**Example:**
+>>If you want to train a GVTNet called `your-gvtnet` on `beta_actin` using the GPU #1, run:
+>>```
+>>./scripts/label-free/train.sh beta_actin 1 your-gvtnet
+>>```
+>>After training, you will find:
+>>- Transformed datasets are saved under `save_dir/label-free/beta_actin/datasets/`. This process will only be performed for the first run.
+>>- The content in `network_configure.py` is saved as `network_configures/your-gvtnet.py`.
+>>- Model checkpoints are saved under `save_dir/label-free/beta_actin/models/your-gvtnet/`.
+>>**Note**: Always give a different `model_name` when you use a different `network_configure.py`. This tool will used `model_name` to track different network configures.
 
 ---
 
@@ -103,14 +101,12 @@ After training, you will find:
 ---
 
 >**Example:**
-
 >>If you have trained a GVTNet called `your-gvtnet` on `beta_actin`, and want to make prediction for the testing set with the saved model checkpoints after training for `75,000` minibatch iterations, run:
 >>```
 >>./scripts/label-free/predict.sh beta_actin 1 your-gvtnet 75000
 >>```
 >>After prediction, you will find:
 >>- Prediction results are saved under `save_dir/label-free/beta_actin/results/your-gvtnet/checkpoint_75000/`.
-
 >>**Note**: If your GPU memory is limited, set `gpu_id` to `-1` for CPU prediction.
 
 ---
