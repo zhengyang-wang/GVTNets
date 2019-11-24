@@ -248,6 +248,14 @@ them into npz file(s). The npz file(s) can be either a single npz file containin
      You will need to specify the arguments, such as npz_dataset_dir, gpu_id. You can refer to the scripts for the 
      example argument settings. You can also tune the model parameters by modifying *network_configure.py*.
      
+     
+---
+
+>**Note**: Always give a different `model_name` when you use a different `network_configure.py`. This tool will used `model_name` to track different network configures.
+
+---
+
+     
      Explaination to some arguments:
      ```
      --already_cropped: include it only when training images are already cropped to patches. If not, 
