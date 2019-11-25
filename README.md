@@ -197,7 +197,7 @@ chmod +x ./scripts/care_projection/*.sh
 
 ---
 
->**Note**: If your GPU memory is limited, set `gpu_id` to `-1` for CPU prediction.
+**Note**: If your GPU memory is limited, set `gpu_id` to `-1` for CPU prediction.
 
 ---
 
@@ -251,7 +251,7 @@ them into npz file(s). The npz file(s) can be either a single npz file containin
      
 ---
 
->**Note**: Always give a different `model_name` when you use a different `network_configure.py`. This tool will used `model_name` to track different network configures.
+   >**Note**: Always give a different `model_name` when you use a different `network_configure.py`. This tool will used `model_name` to track different network configures.
 
 ---
 
@@ -268,7 +268,15 @@ them into npz file(s). The npz file(s) can be either a single npz file containin
      --probalistic: whether to train with probalistic loss, used in CARE models.
      ```
      
-- To predict and evaluate the dataset: the prediction and evaluation accept the tif/tiff files as inputs.
+- To prepare the prediction and evaluation data: the prediction and evaluation accept the tif/tiff files as inputs. Each
+tif/tiff file contains one image of shape 
+
+      [(depth,) height, width]
+           
+     The ground truth files used for evaluation should have the same names as their corresponding input files and be 
+     stored in a different directory to the result or the input files.
+     
+- To predict and evaluate the dataset: run the following command,
 
       python predict.py [--args]
       
