@@ -24,6 +24,7 @@ We used Ubuntu 16.04.6 LTS (GNU/Linux 4.4.0-141-generic x86_64)) and an nVIDIA G
 git clone https://github.com/zhengyang-wang/Image2Image.git
 cd Image2Image
 ```
+If you do not want to use provided pretrained models for reproduction of results in our paper, you may skip downloading `save_dir`.
 - Create a virtual environment with required packages:
 ```
 conda env create -f gvtnet.yml
