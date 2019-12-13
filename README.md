@@ -25,7 +25,7 @@ git clone https://github.com/zhengyang-wang/Image2Image.git
 cd Image2Image
 ```
 If you do not want to use provided pretrained models for reproduction of results in our paper, you may skip downloading `save_dir`.
-- Create a virtual environment with required packages:
+- Create a virtual environment with required packages (it may take several minutes):
 ```
 conda env create -f gvtnet.yml
 ```
@@ -151,7 +151,7 @@ chmod +x ./scripts/label-free/*.sh
 ./scripts/label-free/evaluate_dir.sh [dataset] gvtnet_label-free_pretrained pretrained
 ```
 
-You will obtain the exact number reported in the supplementary of our paper.
+You will obtain the exact number reported in the supplementary of our paper. The estimated running time can be found in the paper.
 
 ### Content-aware 3D image denoising and 3D to 2D image projection (CARE)
 
@@ -224,7 +224,7 @@ chmod +x ./scripts/care_projection/*.sh
 ./scripts/care_projection/evaluate_Flywing.sh [condition] gvtnet_care_pretrained pretrained
 ```
 
-You will obtain the exact number reported in the supplementary of our paper.
+You will obtain the exact number reported in the supplementary of our paper. The estimated running time can be found in the paper.
 
 ### To train and inference/test with your own datasets.
 
@@ -257,7 +257,7 @@ them into npz file(s). The npz file(s) can be either a single npz file containin
 ---
 
      
-     Explaination to some arguments:
+     Explanation to some arguments:
      ```
      --already_cropped: include it only when training images are already cropped to patches. If not, 
                         you need to specify the --train_patch_size and the image will be automatically 
@@ -288,7 +288,7 @@ tif/tiff file contains one image of shape
      You will need to specify the arguments for prediction and evaluation respectively, such as tiff_dataset_dir, 
      gpu_id. You can refer to the scripts for the example argument settings.
      
-     Explaination to some arguments:
+     Explanation to some arguments:
      ```
      --cropped_prediction: suggested when having a GPU memory problem. The input images will be processed
                            patch by patch and assembled back together. If included, you also need to
