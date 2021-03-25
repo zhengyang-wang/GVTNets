@@ -1,5 +1,23 @@
 # Global Voxel Transformer Networks for Augmented Microscopy
 
+## Publication
+
+The paper is available at [https://www.nature.com/articles/s42256-020-00283-x](https://www.nature.com/articles/s42256-020-00283-x).
+
+If using this code , please cite our paper.
+```
+@article{wang2021global,
+  title={Global voxel transformer networks for augmented microscopy},
+  author={Wang, Zhengyang and Xie, Yaochen and Ji, Shuiwang},
+  journal={Nature Machine Intelligence},
+  volume={3},
+  number={2},
+  pages={161--171},
+  year={2021},
+  publisher={Nature Publishing Group}
+}
+```
+
 ## Global Voxel Transformer Networks (GVTNets)
 
 ![gvtnets](./doc/GVTNets.jpg)
